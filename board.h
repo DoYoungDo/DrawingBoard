@@ -3,32 +3,34 @@
 
 #include <QWidget>
 
+class Drawer;
+class BoardPrivate;
+
 class Board : public QWidget
 {
     Q_OBJECT
 public:
     explicit Board(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+    ~Board();
 
     // QWidget interface
 protected:
+    // virtual bool eventFilter(QObject* watched, QEvent* event) override;
     virtual void paintEvent(QPaintEvent* event) override;
     virtual void resizeEvent(QResizeEvent* event) override;
     virtual void mouseMoveEvent(QMouseEvent* event) override;
     virtual void mousePressEvent(QMouseEvent* event) override;
     virtual void mouseReleaseEvent(QMouseEvent* event) override;
+    virtual void enterEvent(QEnterEvent* event) override;
+    virtual void leaveEvent(QEvent* event) override;
 
 protected:
-    virtual void drawImage(QPainter* p);
-    virtual void drawLine(QPoint p);
-
-    virtual QRect mouseArea(QPoint p);
+    void drawLine(QPoint lastMousePos, QPoint mousePos);
+    void drawPen(QPoint mousePos);
 
 private:
-    QImage mImage;
-    bool drawMouseArea = true;
-    QRect mMouseArea;
-    bool isDraw = false;
-    QPoint lastPoint;
+    friend class BoardPrivate;
+    BoardPrivate* d = nullptr;
 };
 
 #endif // BOARD_H

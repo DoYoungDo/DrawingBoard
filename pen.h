@@ -1,16 +1,12 @@
 #ifndef PEN_H
 #define PEN_H
 
-#include <QObject>
+#include <QPen>
 
-class Pen : public QObject
+class Pen : public QPen
 {
-    Q_OBJECT
 public:
-    explicit Pen(QObject *parent = nullptr);
-
-signals:
-
+    virtual QPixmap shape() = 0;
 };
 
 #endif // PEN_H

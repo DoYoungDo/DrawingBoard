@@ -17,6 +17,7 @@ TrayIcon::TrayIcon(QObject *parent)
     menu->addAction("Draw", [this](){
         if(pBoard && pBoard->isVisible())
         {
+            pBoard->showMaximized();
             return;
         }
 
