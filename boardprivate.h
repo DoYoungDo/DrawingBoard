@@ -1,11 +1,11 @@
 #ifndef BOARDPRIVATE_H
 #define BOARDPRIVATE_H
 
+#include <QImage>
 #include <QStack>
 
-
-class QImage;
 class QPainter;
+class QPoint;
 
 class Board;
 class Drawer;
@@ -43,6 +43,7 @@ public:
     QStack<State> stateStack;
 
     bool mouseIsPress = false;
+    QPoint mouseLastPos;
 
     Drawer* controlPlatform = nullptr;
 };

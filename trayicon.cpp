@@ -43,10 +43,10 @@ bool TrayIcon::eventFilter(QObject* watched, QEvent* event)
 {
     if(watched == pBoard)
     {
-        auto* mouseEvent = static_cast<QKeyEvent*>(event);
-        if(mouseEvent)
+        auto* keyEvent = static_cast<QKeyEvent*>(event);
+        if(keyEvent)
         {
-            switch (mouseEvent->key()) {
+            switch (keyEvent->key()) {
             case Qt::Key_Escape:
                 pBoard->close();
                 return true;

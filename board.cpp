@@ -26,7 +26,7 @@ BoardPrivate::BoardPrivate(Board* _q)
     savaState();
 
     controlPlatform = new Drawer(nullptr, Qt::WindowStaysOnTopHint);
-    controlPlatform->resize(300,100);
+    controlPlatform->resize(500,100);
 }
 
 BoardPrivate::~BoardPrivate()
@@ -93,7 +93,7 @@ bool BoardPrivate::showOrHideDrawer(QPoint p)
             q->connect(anim, &QPropertyAnimation::finished, q, [anim](){
                 anim->deleteLater();
             });
-            anim->setDuration(150);
+            anim->setDuration(80);
             anim->setStartValue(QPoint(cRect.center().x() - controlPlatform->rect().width() / 2, cRect.bottom()));
             anim->setEndValue(QPoint(cRect.center().x() - controlPlatform->rect().width() / 2, cRect.bottom() - controlPlatform->rect().height()));
             anim->start();
@@ -117,7 +117,7 @@ bool BoardPrivate::showOrHideDrawer(QPoint p)
                 controlPlatform->hide();
                 anim->deleteLater();
             });
-            anim->setDuration(150);
+            anim->setDuration(80);
             anim->setStartValue(QPoint(cRect.center().x() - controlPlatform->rect().width() / 2, cRect.bottom() - controlPlatform->rect().height()));
             anim->setEndValue(QPoint(cRect.center().x() - controlPlatform->rect().width() / 2, cRect.bottom()));
             anim->start();
@@ -189,21 +189,19 @@ void Board::mouseMoveEvent(QMouseEvent* event)
 
     bool upToDate = !d->mouseIsPress ? d->showOrHideDrawer(curPos) : false;
 
-    do{
-        static QPoint lastPos;
-        if(lastPos.isNull())
-        {
-            goto DEAW_LINW_END;
-        }
-
+    if(d->mouseLastPos.isNull())
+    {
+        d->mouseLastPos = curPos;
+    }
+    else
+    {
         if(d->mouseIsPress)
         {
-            drawLine(lastPos, curPos);
+            drawLine(d->mouseLastPos, curPos);
         }
 
-DEAW_LINW_END:
-            lastPos = curPos;
-    }while(0);
+        d->mouseLastPos = curPos;
+    }
 
     drawPen(curPos);
     upToDate = true;
@@ -260,6 +258,7 @@ void Board::mouseReleaseEvent(QMouseEvent* event)
 void Board::enterEvent(QEnterEvent* event)
 {
     d->restoreState();
+    d->mouseLastPos = event->position().toPoint();
 
     update();
 }
@@ -276,7 +275,7 @@ void Board::drawLine(QPoint lastMousePos, QPoint mousePos)
 {
     QPainter painter(&d->boradImg);
     // 设置画笔属性
-    painter.setPen(Qt::green);
+    painter.setPen(*d->controlPlatform->currentPen());
     painter.drawLine(lastMousePos, mousePos);
 }
 
