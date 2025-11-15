@@ -13,9 +13,15 @@ class Drawer;
 class BoardPrivate{
 public:
     enum State{
-        READY_TO_DRAW = 0,
-        NOT_READY_TO_DRAW,
-        DISPLAY
+        NONE = 0,
+        SHOW_BACKGROUND = 1 << 0,
+        SHOW_FOREGTOUND = 1 << 1,
+
+        READY_TO_DRAW = SHOW_BACKGROUND | SHOW_FOREGTOUND,
+
+        SHOW_CONTROL= 1 << 2,
+
+        INIT = READY_TO_DRAW | SHOW_CONTROL
     };
 private:
     BoardPrivate(Board* _q);
@@ -28,6 +34,7 @@ public:
 
     void savaState();
     void restoreState();
+    void setState(State s);
 
     bool showOrHideDrawer(QPoint p);
 

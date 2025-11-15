@@ -33,10 +33,14 @@ public:
 
     Pen* currentPen();
 
-    // QWidget interface
 protected:
-    // virtual void keyPressEvent(QKeyEvent* event) override;
+    virtual void paintEvent(QPaintEvent* event) override;
+    virtual void mousePressEvent(QMouseEvent* event) override;
+    virtual void mouseMoveEvent(QMouseEvent* event) override;
+    virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
+signals:
+    void penSizeChanged(int size);
 private slots:
     void onColorButtonClicked(QColor c);
     void onColorButtonDoubleClicked(ColorButton* btn);

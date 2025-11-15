@@ -48,18 +48,38 @@ public:
 };
 
 Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
-    : QWidget{parent,Qt::FramelessWindowHint | f}
+    : QWidget{parent, f}
 {
+    this->setAttribute( Qt::WA_TranslucentBackground);
+
     pensContainer.clear();
     pensContainer << new DefaultPen();
 
-    QLabel* penSizeSliderTitle = new QLabel("size");
-    QSlider* penSizeSlider = new QSlider(Qt::Horizontal, this);
+    // QLabel* penSizeSliderTitle = new QLabel("size");
+    QLabel * penSizeValueLabel = new QLabel(QString::number(1));
+    penSizeValueLabel->setAlignment(Qt::AlignCenter);
+    QSlider* penSizeSlider = new QSlider(Qt::Vertical, this);
+    penSizeSlider->setToolTip("pen size");
+    penSizeSlider->setRange(1,100);
+    penSizeSlider->setValue(1);
+    connect(penSizeSlider,&QSlider::valueChanged, this, [this, penSizeValueLabel](int value){
+        currentPen()->setWidth(value);
+        penSizeValueLabel->setText(QString::number(value));
+        emit penSizeChanged(value);
+    });
+    QVBoxLayout* penSizeSliderGroupLayout = new QVBoxLayout;
+    penSizeSliderGroupLayout->setContentsMargins(10,0,10,0);
+    penSizeSliderGroupLayout->setSpacing(0);
+    penSizeSliderGroupLayout->addWidget(penSizeSlider, 1);
+    penSizeSliderGroupLayout->addWidget(penSizeValueLabel, 0);
+
+
     QHBoxLayout* penSizeLayout = new QHBoxLayout;
     penSizeLayout->setContentsMargins(0,0,0,0);
-    penSizeLayout->setSpacing(10);
-    penSizeLayout->addWidget(penSizeSliderTitle);
-    penSizeLayout->addWidget(penSizeSlider);
+    penSizeLayout->setSpacing(0);
+    // penSizeLayout->addWidget(penSizeSliderTitle);
+    penSizeLayout->addLayout(penSizeSliderGroupLayout);
+    penSizeLayout->addStretch();
 
     ColorButton* defaultColorBottonBL = createColorButton(Qt::black);
     ColorButton* defaultColorBottonW = createColorButton(Qt::white);
@@ -89,11 +109,6 @@ Drawer::~Drawer()
 {
     if(!pensContainer.isEmpty())
     {
-        // for(QPen* pen : pensContainer)
-        // {
-        //     delete pen;
-        //     pen = nullptr;
-        // }
         qDeleteAll(pensContainer);
     }
 }
@@ -101,6 +116,32 @@ Drawer::~Drawer()
 Pen* Drawer::currentPen()
 {
     return pensContainer.first();
+}
+
+void Drawer::paintEvent(QPaintEvent* event)
+{
+    QPainter p(this);
+    p.setOpacity(0.5);
+    p.setPen(Qt::transparent);
+    p.setBrush(QColor(255,255,255,120));
+    p.drawRoundedRect(this->rect().marginsRemoved(QMargins(1,1,1,1)),5,5);
+
+    this->setMask(QRegion(this->rect()));
+}
+
+void Drawer::mousePressEvent(QMouseEvent* event)
+{
+    event->accept();
+}
+
+void Drawer::mouseMoveEvent(QMouseEvent* event)
+{
+    event->accept();
+}
+
+void Drawer::mouseReleaseEvent(QMouseEvent* event)
+{
+    event->accept();
 }
 
 void Drawer::onColorButtonClicked(QColor c)
@@ -111,7 +152,10 @@ void Drawer::onColorButtonClicked(QColor c)
 void Drawer::onColorButtonDoubleClicked(ColorButton* btn)
 {
     QColor c = QColorDialog::getColor(btn->getColor(), this);
-    btn->setColor(c);
+    if(c.isValid())
+    {
+        btn->setColor(c);
+    }
 }
 
 ColorButton* Drawer::createColorButton(QColor c)
@@ -127,11 +171,4 @@ ColorButton* Drawer::createColorButton(QColor c)
     return btn;
 }
 
-// void Drawer::keyPressEvent(QKeyEvent* event)
-// {
-//     if(event->key() == Qt::Key_Escape)
-//     {
-//         event->ignore();
-//     }
-//     QWidget::keyPressEvent(event);
-// }
+

@@ -13,9 +13,10 @@ public:
     explicit Board(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
     ~Board();
 
+    void readyToDraw();
     // QWidget interface
 protected:
-    // virtual bool eventFilter(QObject* watched, QEvent* event) override;
+    virtual bool eventFilter(QObject* watched, QEvent* event) override;
     virtual void paintEvent(QPaintEvent* event) override;
     virtual void resizeEvent(QResizeEvent* event) override;
     virtual void mouseMoveEvent(QMouseEvent* event) override;

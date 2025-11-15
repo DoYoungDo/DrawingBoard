@@ -17,7 +17,8 @@ TrayIcon::TrayIcon(QObject *parent)
     menu->addAction("Draw", [this](){
         if(pBoard && pBoard->isVisible())
         {
-            pBoard->showMaximized();
+            pBoard->readyToDraw();
+            pBoard->raise();
             return;
         }
 
@@ -27,7 +28,6 @@ TrayIcon::TrayIcon(QObject *parent)
         pBoard->setAttribute(Qt::WA_DeleteOnClose, true);
         pBoard->setAttribute(Qt::WA_TranslucentBackground, true);
         pBoard->installEventFilter(this);
-        // pBoard->show();
         pBoard->showMaximized();
     });
 
