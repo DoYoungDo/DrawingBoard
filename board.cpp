@@ -13,14 +13,15 @@
 BoardPrivate::BoardPrivate(Board* _q)
     :q(_q)
 {
-    backgroundCanvas = QImage(q->size(), QImage::Format_ARGB32);
+    // backgroundCanvas = QImage(q->size(), QImage::Format_ARGB32);
+    backgroundCanvas = QPixmap(q->size());
     backgroundCanvas.fill(QColor(0,0,0,1));
 
-    boradCanvas = QImage(q->size(), QImage::Format_ARGB32);
+    boradCanvas = QPixmap(q->size());
     // boradImg.fill(QColor(203, 52, 39,50));
     boradCanvas.fill(Qt::transparent);
 
-    foregroundCanvas = QImage(q->size(), QImage::Format_ARGB32);
+    foregroundCanvas = QPixmap(q->size());
     // foregroundImg.fill(QColor(73, 142, 250,50));
     boradCanvas.fill(Qt::transparent);
 
@@ -32,6 +33,15 @@ BoardPrivate::BoardPrivate(Board* _q)
     controlPlatform->resize(500,300);
     controlPlatform->installEventFilter(q);
     controlPlatform->connect(controlPlatform, &Drawer::penSizeChanged, controlPlatform, [this](int value){
+        foregroundCanvas.fill(Qt::transparent);
+
+        QPainter p(&foregroundCanvas);
+        p.setPen(*controlPlatform->currentPen());
+        p.drawPoint(q->rect().center());
+
+        q->update();
+    });
+    controlPlatform->connect(controlPlatform, &Drawer::penColorChanged, controlPlatform, [this](const QColor& c){
         foregroundCanvas.fill(Qt::transparent);
 
         QPainter p(&foregroundCanvas);
@@ -62,7 +72,7 @@ void BoardPrivate::drawBackgroundImg(QPainter* p)
     if(state & State::SHOW_BACKGROUND)
     {
         p->save();
-        p->drawPixmap(q->rect(),QPixmap::fromImage(backgroundCanvas));
+        p->drawPixmap(q->rect(),backgroundCanvas);
         p->restore();
     }
 }
@@ -70,7 +80,7 @@ void BoardPrivate::drawBackgroundImg(QPainter* p)
 void BoardPrivate::drawBoradImg(QPainter* p)
 {
     p->save();
-    p->drawPixmap(q->rect(),QPixmap::fromImage(boradCanvas));
+    p->drawPixmap(q->rect(),boradCanvas);
     p->restore();
 }
 
@@ -79,7 +89,7 @@ void BoardPrivate::drawForeGroundImg(QPainter* p)
     if(state & State::SHOW_FOREGTOUND)
     {
         p->save();
-        p->drawPixmap(q->rect(),QPixmap::fromImage(foregroundCanvas));
+        p->drawPixmap(q->rect(),foregroundCanvas);
         p->restore();
     }
 }

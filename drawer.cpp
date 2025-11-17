@@ -167,6 +167,7 @@ void Drawer::mouseDoubleClickEvent(QMouseEvent* event)
 void Drawer::onColorButtonClicked(QColor c)
 {
     currentPen()->setColor(c);
+    emit penColorChanged(c);
 }
 
 void Drawer::onColorButtonDoubleClicked(ColorButton* btn)
@@ -175,7 +176,6 @@ void Drawer::onColorButtonDoubleClicked(ColorButton* btn)
     if(c.isValid())
     {
         btn->setColor(c);
-        emit penColorChanged(c);
     }
 }
 
