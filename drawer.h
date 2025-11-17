@@ -38,9 +38,12 @@ protected:
     virtual void mousePressEvent(QMouseEvent* event) override;
     virtual void mouseMoveEvent(QMouseEvent* event) override;
     virtual void mouseReleaseEvent(QMouseEvent* event) override;
+    virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 
 signals:
+    void backgroundOpacity(int size);
     void penSizeChanged(int size);
+    void penColorChanged(const QColor& c);
 private slots:
     void onColorButtonClicked(QColor c);
     void onColorButtonDoubleClicked(ColorButton* btn);

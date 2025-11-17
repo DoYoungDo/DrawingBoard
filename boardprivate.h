@@ -42,9 +42,9 @@ public:
     friend class Board;
     Board* q = nullptr;
 
-    QImage backgroundImg;
-    QImage boradImg;
-    QImage foregroundImg;
+    QImage backgroundCanvas;
+    QImage boradCanvas;
+    QImage foregroundCanvas;
 
     State state;
     QStack<State> stateStack;

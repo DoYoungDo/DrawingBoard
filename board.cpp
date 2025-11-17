@@ -13,16 +13,16 @@
 BoardPrivate::BoardPrivate(Board* _q)
     :q(_q)
 {
-    backgroundImg = QImage(q->size(), QImage::Format_ARGB32);
-    backgroundImg.fill(QColor(0,0,0,1));
+    backgroundCanvas = QImage(q->size(), QImage::Format_ARGB32);
+    backgroundCanvas.fill(QColor(0,0,0,1));
 
-    boradImg = QImage(q->size(), QImage::Format_ARGB32);
+    boradCanvas = QImage(q->size(), QImage::Format_ARGB32);
     // boradImg.fill(QColor(203, 52, 39,50));
-    boradImg.fill(Qt::transparent);
+    boradCanvas.fill(Qt::transparent);
 
-    foregroundImg = QImage(q->size(), QImage::Format_ARGB32);
+    foregroundCanvas = QImage(q->size(), QImage::Format_ARGB32);
     // foregroundImg.fill(QColor(73, 142, 250,50));
-    boradImg.fill(Qt::transparent);
+    boradCanvas.fill(Qt::transparent);
 
     state = State::INIT;
     savaState();
@@ -31,6 +31,21 @@ BoardPrivate::BoardPrivate(Board* _q)
     controlPlatform->setVisible(false);
     controlPlatform->resize(500,300);
     controlPlatform->installEventFilter(q);
+    controlPlatform->connect(controlPlatform, &Drawer::penSizeChanged, controlPlatform, [this](int value){
+        foregroundCanvas.fill(Qt::transparent);
+
+        QPainter p(&foregroundCanvas);
+        p.setPen(*controlPlatform->currentPen());
+        p.drawPoint(q->rect().center());
+
+        q->update();
+    });
+
+    controlPlatform->connect(controlPlatform, &Drawer::backgroundOpacity, controlPlatform, [this](int value){
+        qDebug() << "alpha" << value << (qreal)value / 10;
+        backgroundCanvas.fill(QColor(0,0,0,(qreal)(255 * value / 10)));
+        q->update();
+    });
 }
 
 BoardPrivate::~BoardPrivate()
@@ -47,7 +62,7 @@ void BoardPrivate::drawBackgroundImg(QPainter* p)
     if(state & State::SHOW_BACKGROUND)
     {
         p->save();
-        p->drawImage(q->rect(),backgroundImg);
+        p->drawPixmap(q->rect(),QPixmap::fromImage(backgroundCanvas));
         p->restore();
     }
 }
@@ -55,7 +70,7 @@ void BoardPrivate::drawBackgroundImg(QPainter* p)
 void BoardPrivate::drawBoradImg(QPainter* p)
 {
     p->save();
-    p->drawImage(q->rect(),boradImg);
+    p->drawPixmap(q->rect(),QPixmap::fromImage(boradCanvas));
     p->restore();
 }
 
@@ -64,7 +79,7 @@ void BoardPrivate::drawForeGroundImg(QPainter* p)
     if(state & State::SHOW_FOREGTOUND)
     {
         p->save();
-        p->drawImage(q->rect(),foregroundImg);
+        p->drawPixmap(q->rect(),QPixmap::fromImage(foregroundCanvas));
         p->restore();
     }
 }
@@ -184,6 +199,11 @@ bool Board::eventFilter(QObject* watched, QEvent* event)
                 return qApp->notify(this,new QMouseEvent(QEvent::MouseMove, this->mapFromGlobal(e->globalPosition()), e->globalPosition(),Qt::NoButton,Qt::NoButton, Qt::NoModifier));
             }
         }
+        else if(event->type() == QEvent::MouseButtonDblClick)
+        {
+            d->boradCanvas.fill(Qt::transparent);
+            this->update();
+        }
     }
 
     return QWidget::eventFilter(watched, event);
@@ -203,9 +223,9 @@ void Board::paintEvent(QPaintEvent* event)
 
 void Board::resizeEvent(QResizeEvent* event)
 {
-    d->backgroundImg = d->backgroundImg.scaled(event->size());
-    d->boradImg = d->boradImg.scaled(event->size());
-    d->foregroundImg = d->foregroundImg.scaled(event->size());
+    d->backgroundCanvas = d->backgroundCanvas.scaled(event->size());
+    d->boradCanvas = d->boradCanvas.scaled(event->size());
+    d->foregroundCanvas = d->foregroundCanvas.scaled(event->size());
 
     QWidget::resizeEvent(event);
 }
@@ -251,15 +271,10 @@ void Board::mousePressEvent(QMouseEvent* event)
         if(d->state & BoardPrivate::READY_TO_DRAW)
         {
             d->controlPlatform->hide();
-        }
+            drawPoint(event->position().toPoint());
 
-        // if(d->mouseLastPos != event->position())
-        // {
-        //     d->mouseLastPos = event->position().toPoint();
-        //     drawPen(event->position().toPoint());
-        //     update();
-        //     return event->accept();
-        // }
+            this->update();
+        }
     }
     QWidget::mousePressEvent(event);
 }
@@ -299,11 +314,21 @@ void Board::leaveEvent(QEvent* event)
     // d->setState((BoardPrivate::State)(d->state & ~BoardPrivate::SHOW_FOREGTOUND));
 }
 
+void Board::drawPoint(QPoint pointPos)
+{
+    if(d->state & BoardPrivate::READY_TO_DRAW)
+    {
+        QPainter p(&d->boradCanvas);
+        p.setPen(*d->controlPlatform->currentPen());
+        p.drawPoint(pointPos);
+    }
+}
+
 void Board::drawLine(QPoint lastMousePos, QPoint mousePos)
 {
     if(d->state & BoardPrivate::READY_TO_DRAW)
     {
-        QPainter painter(&d->boradImg);
+        QPainter painter(&d->boradCanvas);
         // 设置画笔属性
         painter.setPen(*d->controlPlatform->currentPen());
         painter.drawLine(lastMousePos, mousePos);
@@ -312,12 +337,12 @@ void Board::drawLine(QPoint lastMousePos, QPoint mousePos)
 
 void Board::drawPen(QPoint mousePos)
 {
-    d->foregroundImg.fill(Qt::transparent);
+    d->foregroundCanvas.fill(Qt::transparent);
 
     auto pix = d->controlPlatform->currentPen()->shape();// QPixmap(":/res/Icon.png");
 
     mousePos.setY(mousePos.y() - pix.height());
 
-    QPainter p(&d->foregroundImg);
+    QPainter p(&d->foregroundCanvas);
     p.drawPixmap(mousePos, pix);
 }

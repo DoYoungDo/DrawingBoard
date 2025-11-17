@@ -55,7 +55,22 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     pensContainer.clear();
     pensContainer << new DefaultPen();
 
-    // QLabel* penSizeSliderTitle = new QLabel("size");
+    QLabel * backgroundAlphaValueLabel = new QLabel(QString::number(1));
+    backgroundAlphaValueLabel->setAlignment(Qt::AlignCenter);
+    QSlider* backgroundAlphaSlider = new QSlider(Qt::Vertical, this);
+    backgroundAlphaSlider->setToolTip("background");
+    backgroundAlphaSlider->setRange(1,10);
+    backgroundAlphaSlider->setValue(1);
+    connect(backgroundAlphaSlider,&QSlider::valueChanged, this, [this, backgroundAlphaValueLabel](int value){
+        backgroundAlphaValueLabel->setText(QString::number(value));
+        emit backgroundOpacity(value);
+    });
+    QVBoxLayout* backgroundAlphaSliderGroupLayout = new QVBoxLayout;
+    backgroundAlphaSliderGroupLayout->setContentsMargins(10,0,10,0);
+    backgroundAlphaSliderGroupLayout->setSpacing(0);
+    backgroundAlphaSliderGroupLayout->addWidget(backgroundAlphaSlider, 1);
+    backgroundAlphaSliderGroupLayout->addWidget(backgroundAlphaValueLabel, 0);
+
     QLabel * penSizeValueLabel = new QLabel(QString::number(1));
     penSizeValueLabel->setAlignment(Qt::AlignCenter);
     QSlider* penSizeSlider = new QSlider(Qt::Vertical, this);
@@ -77,7 +92,7 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     QHBoxLayout* penSizeLayout = new QHBoxLayout;
     penSizeLayout->setContentsMargins(0,0,0,0);
     penSizeLayout->setSpacing(0);
-    // penSizeLayout->addWidget(penSizeSliderTitle);
+    penSizeLayout->addLayout(backgroundAlphaSliderGroupLayout);
     penSizeLayout->addLayout(penSizeSliderGroupLayout);
     penSizeLayout->addStretch();
 
@@ -144,6 +159,11 @@ void Drawer::mouseReleaseEvent(QMouseEvent* event)
     event->accept();
 }
 
+void Drawer::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    event->accept();
+}
+
 void Drawer::onColorButtonClicked(QColor c)
 {
     currentPen()->setColor(c);
@@ -155,6 +175,7 @@ void Drawer::onColorButtonDoubleClicked(ColorButton* btn)
     if(c.isValid())
     {
         btn->setColor(c);
+        emit penColorChanged(c);
     }
 }
 

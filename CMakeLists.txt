@@ -28,6 +28,7 @@ add_executable(DrawingBoard
     main.cpp
     trayicon.cpp
     boardprivate.h
+    README.md
 )
 
 target_link_libraries(DrawingBoard PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)

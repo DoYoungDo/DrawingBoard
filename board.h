@@ -26,6 +26,7 @@ protected:
     virtual void leaveEvent(QEvent* event) override;
 
 protected:
+    void drawPoint(QPoint pointPos);
     void drawLine(QPoint lastMousePos, QPoint mousePos);
     void drawPen(QPoint mousePos);
 
