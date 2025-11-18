@@ -6,6 +6,20 @@
 #include <QWidget>
 #include <QPushButton>
 
+class PenButton : public QPushButton
+{
+    Q_OBJECT
+public:
+    PenButton(Pen* p, QWidget *parent = nullptr);
+
+    Pen* getPen();
+
+protected:
+    virtual void paintEvent(QPaintEvent* event) override;
+private:
+    Pen* pen;
+};
+
 class ColorButton : public QPushButton
 {
     Q_OBJECT
@@ -44,14 +58,17 @@ signals:
     void backgroundOpacity(int size);
     void penSizeChanged(int size);
     void penColorChanged(const QColor& c);
+    void currentPenChanged(Pen*);
 private slots:
     void onColorButtonClicked(QColor c);
     void onColorButtonDoubleClicked(ColorButton* btn);
 private:
+    PenButton* createPenButton(Pen* p);
     ColorButton* createColorButton(QColor c);
 
 private:
     QList<Pen*> pensContainer;
+    Pen* curPen;
 };
 
 #endif // DRAWER_H

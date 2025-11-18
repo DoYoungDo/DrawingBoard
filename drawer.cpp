@@ -9,6 +9,30 @@
 #include <QSlider>
 
 
+
+PenButton::PenButton(Pen* p, QWidget* parent)
+    :QPushButton(parent)
+    ,pen(p)
+{}
+
+Pen* PenButton::getPen()
+{
+    return pen;
+}
+
+void PenButton::paintEvent(QPaintEvent* event)
+{
+    Q_ASSERT(pen);
+
+    QPainter p(this);
+    p.setPen(Qt::transparent);
+    p.setBrush(Qt::transparent);
+
+    QRect areaRect = this->rect().marginsRemoved(this->isChecked() ? QMargins(0,0,0,10) : QMargins(0,10,0,0));
+    p.drawPixmap(areaRect, pen->staticShape());
+}
+
+
 ColorButton::ColorButton(const QColor& c, QWidget* parent)
     :QPushButton(parent)
     ,color(c)
@@ -59,18 +83,49 @@ public:
 
     // ~DefaultPen(){}
 
+    QString name() override{
+        return "default";
+    }
+
     QPixmap shape() override{
         return QPixmap(":/res/Icon.png");
     }
+
+    QPixmap staticShape() override{
+        return QPixmap(":/res/staticIcon.png");
+    }
 };
+
 
 Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     : QWidget{parent, f}
 {
-    this->setAttribute( Qt::WA_TranslucentBackground);
+    // this->setAttribute( Qt::WA_TranslucentBackground);
 
     pensContainer.clear();
-    pensContainer << new DefaultPen();
+    pensContainer << new DefaultPen() << new DefaultPen;
+    curPen = pensContainer.first();
+
+    QList<PenButton*> penButtons;
+    QButtonGroup* penButtonGroup = new QButtonGroup(this);
+    penButtonGroup->setExclusive(true);
+    for(auto pen : pensContainer)
+    {
+        auto btn = createPenButton(pen);
+
+        penButtonGroup->addButton(btn);
+        penButtons << btn;
+    }
+
+    penButtons.first()->setChecked(true);
+
+    QHBoxLayout* penButtonLayout = new QHBoxLayout;
+    penButtonLayout->setContentsMargins(10,0,10,0);
+    penButtonLayout->setSpacing(10);
+    for(auto penBtn : penButtons){
+        penButtonLayout->addWidget(penBtn);
+    }
+    penButtonLayout->addStretch();
 
     QLabel * backgroundAlphaValueLabel = new QLabel(QString::number(1));
     backgroundAlphaValueLabel->setAlignment(Qt::AlignCenter);
@@ -110,12 +165,12 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     penSizeSliderGroupLayout->addWidget(penSizeValueLabel, 0);
 
 
-    QHBoxLayout* penSizeLayout = new QHBoxLayout;
-    penSizeLayout->setContentsMargins(0,0,0,0);
-    penSizeLayout->setSpacing(0);
-    penSizeLayout->addLayout(backgroundAlphaSliderGroupLayout);
-    penSizeLayout->addLayout(penSizeSliderGroupLayout);
-    penSizeLayout->addStretch();
+    QHBoxLayout* sliderLayout = new QHBoxLayout;
+    sliderLayout->setContentsMargins(0,0,0,0);
+    sliderLayout->setSpacing(0);
+    sliderLayout->addLayout(backgroundAlphaSliderGroupLayout);
+    sliderLayout->addLayout(penSizeSliderGroupLayout);
+    sliderLayout->addStretch();
 
     ColorButton* defaultColorBottonBL = createColorButton(Qt::black);
     defaultColorBottonBL->setChecked(true);
@@ -144,11 +199,17 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     colorButtonGroup->addButton(defaultColorBottonG);
     colorButtonGroup->addButton(defaultColorBottonB);
 
-    QHBoxLayout* mainLayout = new QHBoxLayout(this);
+    QHBoxLayout* BottomLayout = new QHBoxLayout;
+    BottomLayout->setContentsMargins(0,0,0,0);
+    BottomLayout->setSpacing(10);
+    BottomLayout->addLayout(sliderLayout,1);
+    BottomLayout->addLayout(colorButtonLayout,1);
+
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0,0,0,0);
-    mainLayout->setSpacing(10);
-    mainLayout->addLayout(penSizeLayout,1);
-    mainLayout->addLayout(colorButtonLayout,1);
+    mainLayout->setSpacing(0);
+    mainLayout->addLayout(penButtonLayout,1);
+    mainLayout->addLayout(BottomLayout,1);
 }
 
 Drawer::~Drawer()
@@ -161,7 +222,7 @@ Drawer::~Drawer()
 
 Pen* Drawer::currentPen()
 {
-    return pensContainer.first();
+    return curPen;
 }
 
 void Drawer::paintEvent(QPaintEvent* event)
@@ -170,9 +231,11 @@ void Drawer::paintEvent(QPaintEvent* event)
     p.setOpacity(0.5);
     p.setPen(Qt::transparent);
     p.setBrush(QColor(255,255,255,120));
-    p.drawRoundedRect(this->rect().marginsRemoved(QMargins(1,1,1,1)),5,5);
 
-    this->setMask(QRegion(this->rect()));
+    QRect r = this->rect().marginsRemoved(QMargins(1,25,1,1));
+    p.drawRoundedRect(r,5,5);
+
+    // this->setMask(QRegion(r));
 }
 
 void Drawer::mousePressEvent(QMouseEvent* event)
@@ -210,9 +273,21 @@ void Drawer::onColorButtonDoubleClicked(ColorButton* btn)
     }
 }
 
+PenButton* Drawer::createPenButton(Pen* p)
+{
+    PenButton* btn = new PenButton(p, this);
+    btn->setFixedSize(30,90);
+    btn->setCheckable(true);
+    connect(btn, &PenButton::clicked, this, [btn, this](){
+        curPen = btn->getPen();
+        emit currentPenChanged(curPen);
+    });
+    return btn;
+}
+
 ColorButton* Drawer::createColorButton(QColor c)
 {
-    ColorButton* btn = new ColorButton(c);
+    ColorButton* btn = new ColorButton(c, this);
     btn->setFixedSize(30,30);
     btn->setCheckable(true);
     connect(btn, &ColorButton::clicked, this, [btn, this](){
@@ -223,5 +298,4 @@ ColorButton* Drawer::createColorButton(QColor c)
     });
     return btn;
 }
-
 

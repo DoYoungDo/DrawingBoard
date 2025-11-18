@@ -31,7 +31,7 @@ BoardPrivate::BoardPrivate(Board* _q)
 
     controlPlatform = new Drawer(q);
     controlPlatform->setVisible(false);
-    controlPlatform->resize(500,300);
+    controlPlatform->resize(500,200);
     controlPlatform->installEventFilter(q);
     controlPlatform->connect(controlPlatform, &Drawer::penSizeChanged, controlPlatform, [this](int value){
         foregroundCanvas.fill(Qt::transparent);
