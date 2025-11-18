@@ -9,6 +9,7 @@
 #include <QStack>
 #include <QApplication>
 #include <QTimer>
+#include <QPen>
 
 BoardPrivate::BoardPrivate(Board* _q)
     :q(_q)
@@ -45,7 +46,9 @@ BoardPrivate::BoardPrivate(Board* _q)
         foregroundCanvas.fill(Qt::transparent);
 
         QPainter p(&foregroundCanvas);
-        p.setPen(*controlPlatform->currentPen());
+        QPen pen = *controlPlatform->currentPen();
+        pen.setWidth(50);
+        p.setPen(pen);
         p.drawPoint(q->rect().center());
 
         q->update();

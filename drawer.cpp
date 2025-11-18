@@ -1,5 +1,6 @@
 #include "drawer.h"
 
+#include <QButtonGroup>
 #include <QColorDialog>
 #include <QHBoxLayout>
 #include <QKeyEvent>
@@ -24,7 +25,23 @@ void ColorButton::paintEvent(QPaintEvent* event)
     QPainter p(this);
     p.setPen(Qt::transparent);
     p.setBrush(color);
-    p.drawRect(this->rect());
+
+    if(this->isChecked())
+    {
+        p.save();
+        p.setPen(QPen(color, 4));
+        p.setBrush(Qt::transparent);
+
+        p.drawRect(this->rect());
+        p.restore();
+
+        QRect centerRect = this->rect().marginsRemoved(QMargins(4, 4, 4, 4));
+        p.drawRect(centerRect);
+    }
+    else
+    {
+        p.drawRect(this->rect());
+    }
 }
 
 void ColorButton::mouseDoubleClickEvent(QMouseEvent* event)
@@ -61,6 +78,8 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     backgroundAlphaSlider->setToolTip("background");
     backgroundAlphaSlider->setRange(1,10);
     backgroundAlphaSlider->setValue(1);
+    backgroundAlphaSlider->setPageStep(1);
+    backgroundAlphaSlider->setSingleStep(1);
     connect(backgroundAlphaSlider,&QSlider::valueChanged, this, [this, backgroundAlphaValueLabel](int value){
         backgroundAlphaValueLabel->setText(QString::number(value));
         emit backgroundOpacity(value);
@@ -77,6 +96,8 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     penSizeSlider->setToolTip("pen size");
     penSizeSlider->setRange(1,100);
     penSizeSlider->setValue(1);
+    penSizeSlider->setPageStep(10);
+    penSizeSlider->setSingleStep(10);
     connect(penSizeSlider,&QSlider::valueChanged, this, [this, penSizeValueLabel](int value){
         currentPen()->setWidth(value);
         penSizeValueLabel->setText(QString::number(value));
@@ -97,6 +118,7 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     penSizeLayout->addStretch();
 
     ColorButton* defaultColorBottonBL = createColorButton(Qt::black);
+    defaultColorBottonBL->setChecked(true);
     ColorButton* defaultColorBottonW = createColorButton(Qt::white);
     ColorButton* defaultColorBottonR = createColorButton(Qt::red);
     ColorButton* defaultColorBottonY = createColorButton(Qt::yellow);
@@ -112,6 +134,15 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     colorButtonLayout->addWidget(defaultColorBottonG);
     colorButtonLayout->addWidget(defaultColorBottonB);
     colorButtonLayout->addStretch();
+
+    QButtonGroup* colorButtonGroup = new QButtonGroup(this);
+    colorButtonGroup->setExclusive(true);
+    colorButtonGroup->addButton(defaultColorBottonBL);
+    colorButtonGroup->addButton(defaultColorBottonW);
+    colorButtonGroup->addButton(defaultColorBottonR);
+    colorButtonGroup->addButton(defaultColorBottonY);
+    colorButtonGroup->addButton(defaultColorBottonG);
+    colorButtonGroup->addButton(defaultColorBottonB);
 
     QHBoxLayout* mainLayout = new QHBoxLayout(this);
     mainLayout->setContentsMargins(0,0,0,0);
@@ -183,6 +214,7 @@ ColorButton* Drawer::createColorButton(QColor c)
 {
     ColorButton* btn = new ColorButton(c);
     btn->setFixedSize(30,30);
+    btn->setCheckable(true);
     connect(btn, &ColorButton::clicked, this, [btn, this](){
         onColorButtonClicked(btn->getColor());
     });
