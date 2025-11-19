@@ -5,6 +5,8 @@
 
 #include <QWidget>
 #include <QPushButton>
+class QBoxLayout;
+class DrawerPrivate;
 
 class PenButton : public QPushButton
 {
@@ -46,6 +48,7 @@ public:
     ~Drawer();
 
     const Pen* currentPen();
+    QColor backgroundColor() const;
 
 protected:
     virtual void paintEvent(QPaintEvent* event) override;
@@ -55,20 +58,31 @@ protected:
     virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
 
 signals:
-    void backgroundOpacity(int size);
-    void backgroundColorChanged(const QColor*);
+    void backgroundOpacityChanged(const QColor&);
+    void backgroundColorChanged(const QColor&);
     void penSizeChanged(int size);
-    void penColorChanged(const QColor& c);
+    void penColorChanged(const QColor&);
     void currentPenChanged(Pen*);
 private:
+    void setupUi();
+    QBoxLayout* setupPenUi();
+    QBoxLayout* setupSliderUi();
+    QBoxLayout* setupColorButtonUi();
+    QBoxLayout* createLayout(Qt::Orientation o, int spacing = 0, const QMargins& m = QMargins(0,0,0,0));
+
     PenButton* createPenButton(Pen* p);
-    ColorButton* createColorButton(QColor c);
+    ColorButton* createColorButton(QColor c, std::function<void(const QColor&)> colorChangedCb);
     void foreachPen(std::function<void(Pen*)> cb);
     Pen* findPen(std::function<bool(Pen*)> cb);
+    template<typename T>
+    QList<T> mapPen(std::function<T(Pen*)> cb);
 
 private:
     QList<Pen*> pensContainer;
     Pen* curPen;
+
+    friend class DrawerPrivate;
+    DrawerPrivate* d;
 };
 
 #endif // DRAWER_H

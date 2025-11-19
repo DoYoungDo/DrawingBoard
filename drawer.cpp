@@ -1,3 +1,4 @@
+#include "drawerprivate.h"
 #include "drawer.h"
 
 #include <QButtonGroup>
@@ -8,7 +9,7 @@
 #include <QPainter>
 #include <QRadioButton>
 #include <QSlider>
-
+#include <QBoxLayout>
 
 
 PenButton::PenButton(Pen* p, QWidget* parent)
@@ -107,142 +108,23 @@ private:
 };
 
 
+
+DrawerPrivate::DrawerPrivate()
+{
+    backgroundColor = QColor(0,0,0,1);
+}
+
+
 Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     : QWidget{parent, f}
+    ,d(new DrawerPrivate)
 {
-    // this->setAttribute( Qt::WA_TranslucentBackground);
-
     pensContainer.clear();
     pensContainer << new InternalPen("default",":/pen/res/Icon.png",":/pen/res/staticIcon.png")
                   << new InternalPen("pencil",":/pen/res/pencil.png",":/pen/res/staticPencil.png",Qt::SolidPattern,1,Qt::SolidLine,Qt::SquareCap,Qt::RoundJoin);
     curPen = pensContainer.first();
 
-    QList<PenButton*> penButtons;
-    QButtonGroup* penButtonGroup = new QButtonGroup(this);
-    penButtonGroup->setExclusive(true);
-    foreachPen([&](Pen* pen){
-        auto btn = createPenButton(pen);
-
-        penButtonGroup->addButton(btn);
-        penButtons << btn;
-    });
-
-    penButtons.first()->setChecked(true);
-
-    QHBoxLayout* penButtonLayout = new QHBoxLayout;
-    penButtonLayout->setContentsMargins(10,0,10,0);
-    penButtonLayout->setSpacing(10);
-    for(auto penBtn : penButtons){
-        penButtonLayout->addWidget(penBtn);
-    }
-    penButtonLayout->addStretch();
-
-    QLabel * backgroundAlphaValueLabel = new QLabel(QString::number(1));
-    backgroundAlphaValueLabel->setAlignment(Qt::AlignCenter);
-    QSlider* backgroundAlphaSlider = new QSlider(Qt::Vertical, this);
-    backgroundAlphaSlider->setToolTip("background");
-    backgroundAlphaSlider->setRange(1,10);
-    backgroundAlphaSlider->setValue(1);
-    backgroundAlphaSlider->setPageStep(1);
-    backgroundAlphaSlider->setSingleStep(1);
-    connect(backgroundAlphaSlider,&QSlider::valueChanged, this, [this, backgroundAlphaValueLabel](int value){
-        backgroundAlphaValueLabel->setText(QString::number(value));
-        emit backgroundOpacity(value);
-    });
-    QVBoxLayout* backgroundAlphaSliderGroupLayout = new QVBoxLayout;
-    backgroundAlphaSliderGroupLayout->setContentsMargins(10,0,10,0);
-    backgroundAlphaSliderGroupLayout->setSpacing(0);
-    backgroundAlphaSliderGroupLayout->addWidget(backgroundAlphaSlider, 1);
-    backgroundAlphaSliderGroupLayout->addWidget(backgroundAlphaValueLabel, 0);
-
-    QLabel * penSizeValueLabel = new QLabel(QString::number(1));
-    penSizeValueLabel->setAlignment(Qt::AlignCenter);
-    QSlider* penSizeSlider = new QSlider(Qt::Vertical, this);
-    penSizeSlider->setToolTip("pen size");
-    penSizeSlider->setRange(1,100);
-    penSizeSlider->setValue(1);
-    penSizeSlider->setPageStep(10);
-    penSizeSlider->setSingleStep(10);
-    connect(penSizeSlider,&QSlider::valueChanged, this, [this, penSizeValueLabel](int value){
-        foreachPen([=](Pen* pen){
-            pen->setWidth(value);
-        });
-        penSizeValueLabel->setText(QString::number(value));
-        emit penSizeChanged(value);
-    });
-    QVBoxLayout* penSizeSliderGroupLayout = new QVBoxLayout;
-    penSizeSliderGroupLayout->setContentsMargins(10,0,10,0);
-    penSizeSliderGroupLayout->setSpacing(0);
-    penSizeSliderGroupLayout->addWidget(penSizeSlider, 1);
-    penSizeSliderGroupLayout->addWidget(penSizeValueLabel, 0);
-
-    QHBoxLayout* sliderLayout = new QHBoxLayout;
-    sliderLayout->setContentsMargins(0,0,0,0);
-    sliderLayout->setSpacing(0);
-    sliderLayout->addLayout(backgroundAlphaSliderGroupLayout);
-    sliderLayout->addLayout(penSizeSliderGroupLayout);
-    sliderLayout->addStretch();
-
-    QRadioButton* backgroundRadioBtn = new QRadioButton("background",this);
-    backgroundRadioBtn->setCheckable(true);
-    QRadioButton* penRadioBtn = new QRadioButton("pen",this);
-    penRadioBtn->setCheckable(true);
-    penRadioBtn->setChecked(true);
-    QButtonGroup* radioButtonGroup = new QButtonGroup(this);
-    radioButtonGroup->setExclusive(true);
-    radioButtonGroup->addButton(backgroundRadioBtn);
-    radioButtonGroup->addButton(penRadioBtn);
-
-    QHBoxLayout* radioButtonLayout = new QHBoxLayout;
-    radioButtonLayout->setContentsMargins(0,0,0,0);
-    radioButtonLayout->setSpacing(10);
-    radioButtonLayout->addWidget(backgroundRadioBtn);
-    radioButtonLayout->addWidget(penRadioBtn);
-
-    ColorButton* defaultColorBottonBL = createColorButton(Qt::black);
-    defaultColorBottonBL->setChecked(true);
-    ColorButton* defaultColorBottonW = createColorButton(Qt::white);
-    ColorButton* defaultColorBottonR = createColorButton(Qt::red);
-    ColorButton* defaultColorBottonY = createColorButton(Qt::yellow);
-    ColorButton* defaultColorBottonG = createColorButton(Qt::green);
-    ColorButton* defaultColorBottonB = createColorButton(Qt::blue);
-    QHBoxLayout* colorButtonLayout = new QHBoxLayout;
-    colorButtonLayout->setContentsMargins(0,0,0,0);
-    colorButtonLayout->setSpacing(10);
-    colorButtonLayout->addWidget(defaultColorBottonBL);
-    colorButtonLayout->addWidget(defaultColorBottonW);
-    colorButtonLayout->addWidget(defaultColorBottonR);
-    colorButtonLayout->addWidget(defaultColorBottonY);
-    colorButtonLayout->addWidget(defaultColorBottonG);
-    colorButtonLayout->addWidget(defaultColorBottonB);
-    colorButtonLayout->addStretch();
-
-    QVBoxLayout* colorLayout = new QVBoxLayout;
-    colorLayout->setContentsMargins(0,0,0,0);
-    colorLayout->setSpacing(10);
-    colorLayout->addLayout(radioButtonLayout);
-    colorLayout->addLayout(colorButtonLayout);
-
-    QButtonGroup* colorButtonGroup = new QButtonGroup(this);
-    colorButtonGroup->setExclusive(true);
-    colorButtonGroup->addButton(defaultColorBottonBL);
-    colorButtonGroup->addButton(defaultColorBottonW);
-    colorButtonGroup->addButton(defaultColorBottonR);
-    colorButtonGroup->addButton(defaultColorBottonY);
-    colorButtonGroup->addButton(defaultColorBottonG);
-    colorButtonGroup->addButton(defaultColorBottonB);
-
-    QHBoxLayout* BottomLayout = new QHBoxLayout;
-    BottomLayout->setContentsMargins(0,0,0,0);
-    BottomLayout->setSpacing(10);
-    BottomLayout->addLayout(sliderLayout,1);
-    BottomLayout->addLayout(colorLayout,1);
-
-    QVBoxLayout* mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(0,0,0,0);
-    mainLayout->setSpacing(0);
-    mainLayout->addLayout(penButtonLayout,1);
-    mainLayout->addLayout(BottomLayout,1);
+    setupUi();
 }
 
 Drawer::~Drawer()
@@ -256,6 +138,11 @@ Drawer::~Drawer()
 const Pen* Drawer::currentPen()
 {
     return curPen;
+}
+
+QColor Drawer::backgroundColor() const
+{
+    return d->backgroundColor;
 }
 
 void Drawer::paintEvent(QPaintEvent* event)
@@ -291,6 +178,161 @@ void Drawer::mouseDoubleClickEvent(QMouseEvent* event)
     event->accept();
 }
 
+void Drawer::setupUi()
+{
+    QBoxLayout* bottomLayout = createLayout(Qt::Horizontal, 10);
+    bottomLayout->addLayout(setupSliderUi());
+    bottomLayout->addLayout(setupColorButtonUi());
+
+    QBoxLayout* layout = createLayout(Qt::Vertical, 10);
+    layout->addLayout(setupPenUi(),1);
+    layout->addLayout(bottomLayout),1;
+
+    this->setLayout(layout);
+}
+
+QBoxLayout* Drawer::setupPenUi()
+{
+    QButtonGroup* penButtonGroup = new QButtonGroup(this);
+    penButtonGroup->setExclusive(true);
+
+    QList<PenButton*> penButtons = mapPen<PenButton*>([this,penButtonGroup](Pen* pen)->PenButton*{
+        auto btn = createPenButton(pen);
+        penButtonGroup->addButton(btn);
+        return btn;
+    });
+    penButtons.first()->setChecked(true);
+
+    QBoxLayout* layout = createLayout(Qt::Horizontal, 10);
+    for(auto penBtn : penButtons){
+        layout->addWidget(penBtn);
+    }
+    layout->addStretch();
+
+    return layout;
+}
+
+QBoxLayout* Drawer::setupSliderUi()
+{
+    QLabel * backgroundAlphaValueLabel = new QLabel(QString::number(1));
+    backgroundAlphaValueLabel->setAlignment(Qt::AlignCenter);
+    d->backgroundAlphaSlider = new QSlider(Qt::Vertical, this);
+    d->backgroundAlphaSlider->setToolTip("background");
+    d->backgroundAlphaSlider->setRange(1,10);
+    d->backgroundAlphaSlider->setValue(1);
+    d->backgroundAlphaSlider->setPageStep(1);
+    d->backgroundAlphaSlider->setSingleStep(1);
+    connect(d->backgroundAlphaSlider,&QSlider::valueChanged, this, [this, backgroundAlphaValueLabel](int value){
+        backgroundAlphaValueLabel->setText(QString::number(value));
+
+        int alpha = 255 * value /10;
+        d->backgroundColor.setAlpha(alpha);
+        emit backgroundOpacityChanged(d->backgroundColor);
+    });
+    QBoxLayout* backgroundAlphaSliderGroupLayout = createLayout(Qt::Vertical,0, QMargins(10,0,10,0));
+    backgroundAlphaSliderGroupLayout->addWidget(d->backgroundAlphaSlider, 1);
+    backgroundAlphaSliderGroupLayout->addWidget(backgroundAlphaValueLabel, 0);
+
+    QLabel * penSizeValueLabel = new QLabel(QString::number(1));
+    penSizeValueLabel->setAlignment(Qt::AlignCenter);
+    d->penSizeSlider = new QSlider(Qt::Vertical, this);
+    d->penSizeSlider->setToolTip("pen size");
+    d->penSizeSlider->setRange(1,100);
+    d->penSizeSlider->setValue(1);
+    d->penSizeSlider->setPageStep(10);
+    d->penSizeSlider->setSingleStep(10);
+    connect(d->penSizeSlider,&QSlider::valueChanged, this, [this, penSizeValueLabel](int value){
+        foreachPen([=](Pen* pen){
+            pen->setWidth(value);
+        });
+        penSizeValueLabel->setText(QString::number(value));
+        emit penSizeChanged(value);
+    });
+    QBoxLayout* penSizeSliderGroupLayout = createLayout(Qt::Vertical,0, QMargins(10,0,10,0));
+    penSizeSliderGroupLayout->addWidget(d->penSizeSlider, 1);
+    penSizeSliderGroupLayout->addWidget(penSizeValueLabel, 0);
+
+    QBoxLayout* sliderLayout = createLayout(Qt::Horizontal, 10);
+    sliderLayout->addStretch();
+    sliderLayout->addLayout(backgroundAlphaSliderGroupLayout);
+    sliderLayout->addLayout(penSizeSliderGroupLayout);
+    sliderLayout->addStretch();
+
+    return sliderLayout;
+}
+
+QBoxLayout* Drawer::setupColorButtonUi()
+{
+    QRadioButton* backgroundRadioBtn = new QRadioButton("background",this);
+    backgroundRadioBtn->setCheckable(true);
+    QRadioButton* penRadioBtn = new QRadioButton("pen",this);
+    penRadioBtn->setCheckable(true);
+    penRadioBtn->setChecked(true);
+    QButtonGroup* radioButtonGroup = new QButtonGroup(this);
+    radioButtonGroup->setExclusive(true);
+    radioButtonGroup->addButton(backgroundRadioBtn, 0);
+    radioButtonGroup->addButton(penRadioBtn, 1);
+
+    QBoxLayout* radioButtonLayout = createLayout(Qt::Horizontal, 10);
+    radioButtonLayout->addWidget(backgroundRadioBtn);
+    radioButtonLayout->addWidget(penRadioBtn);
+
+    auto onColorChanged = [this, radioButtonGroup](const QColor& c){
+        if(radioButtonGroup->checkedId() == 0){
+            QColor cc = c;
+            cc.setAlpha(d->backgroundColor.alpha());
+            d->backgroundColor = cc;
+
+            emit backgroundColorChanged(cc);
+        }
+        else
+        {
+            emit penColorChanged(c);
+        }
+    };
+
+    ColorButton* defaultColorBottonBL = createColorButton(Qt::black,onColorChanged);
+    defaultColorBottonBL->setChecked(true);
+    ColorButton* defaultColorBottonW = createColorButton(Qt::white,onColorChanged);
+    ColorButton* defaultColorBottonR = createColorButton(Qt::red,onColorChanged);
+    ColorButton* defaultColorBottonY = createColorButton(Qt::yellow,onColorChanged);
+    ColorButton* defaultColorBottonG = createColorButton(Qt::green,onColorChanged);
+    ColorButton* defaultColorBottonB = createColorButton(Qt::blue,onColorChanged);
+
+    QBoxLayout* colorButtonLayout = createLayout(Qt::Horizontal, 10);
+    colorButtonLayout->addWidget(defaultColorBottonBL);
+    colorButtonLayout->addWidget(defaultColorBottonW);
+    colorButtonLayout->addWidget(defaultColorBottonR);
+    colorButtonLayout->addWidget(defaultColorBottonY);
+    colorButtonLayout->addWidget(defaultColorBottonG);
+    colorButtonLayout->addWidget(defaultColorBottonB);
+    colorButtonLayout->addStretch();
+
+
+    QButtonGroup* colorButtonGroup = new QButtonGroup(this);
+    colorButtonGroup->setExclusive(true);
+    colorButtonGroup->addButton(defaultColorBottonBL);
+    colorButtonGroup->addButton(defaultColorBottonW);
+    colorButtonGroup->addButton(defaultColorBottonR);
+    colorButtonGroup->addButton(defaultColorBottonY);
+    colorButtonGroup->addButton(defaultColorBottonG);
+    colorButtonGroup->addButton(defaultColorBottonB);
+
+    QBoxLayout* colorLayout = createLayout(Qt::Vertical, 10);
+    colorLayout->addLayout(radioButtonLayout);
+    colorLayout->addLayout(colorButtonLayout);
+
+    return colorLayout;
+}
+
+QBoxLayout* Drawer::createLayout(Qt::Orientation o, int spacing, const QMargins& m)
+{
+    QBoxLayout* layout = new QBoxLayout(o == Qt::Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
+    layout->setSpacing(spacing);
+    layout->setContentsMargins(m);
+    return layout;
+}
+
 PenButton* Drawer::createPenButton(Pen* p)
 {
     PenButton* btn = new PenButton(p, this);
@@ -303,24 +345,24 @@ PenButton* Drawer::createPenButton(Pen* p)
     return btn;
 }
 
-ColorButton* Drawer::createColorButton(QColor c)
+ColorButton* Drawer::createColorButton(QColor c, std::function<void (const QColor&)> colorChangedCb)
 {
     ColorButton* btn = new ColorButton(c, this);
     btn->setFixedSize(30,30);
     btn->setCheckable(true);
-    connect(btn, &ColorButton::clicked, this, [btn, this](){
+    connect(btn, &ColorButton::clicked, this, [btn,colorChangedCb, this](){
         auto c = btn->getColor();
         foreachPen([c](Pen*pen){pen->setColor(c);});
-        emit penColorChanged(c);
+        colorChangedCb(c);
     });
-    connect(btn, &ColorButton::doubleClicked, this, [btn, this](){
+    connect(btn, &ColorButton::doubleClicked, this, [btn,colorChangedCb, this](){
         QColor c = QColorDialog::getColor(btn->getColor(), this);
         if(c.isValid())
         {
             btn->setColor(c);
 
             foreachPen([c](Pen*pen){pen->setColor(c);});
-            emit penColorChanged(c);
+            colorChangedCb(c);
         }
     });
     return btn;
@@ -345,3 +387,14 @@ Pen* Drawer::findPen(std::function<bool (Pen*)> cb)
     return nullptr;
 }
 
+
+template<typename T>
+QList<T> Drawer::mapPen(std::function<T (Pen*)> cb)
+{
+    QList<T> list;
+    for(Pen* pen : std::as_const(pensContainer))
+    {
+        list << cb(pen);
+    }
+    return std::move(list);
+}

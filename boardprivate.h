@@ -2,6 +2,7 @@
 #define BOARDPRIVATE_H
 
 #include <QImage>
+#include <QPixmap>
 #include <QStack>
 
 class QPainter;

@@ -1,6 +1,5 @@
-#include "board.h"
 #include "boardprivate.h"
-
+#include "board.h"
 #include "drawer.h"
 
 #include <QPainter>
@@ -14,18 +13,6 @@
 BoardPrivate::BoardPrivate(Board* _q)
     :q(_q)
 {
-    // backgroundCanvas = QImage(q->size(), QImage::Format_ARGB32);
-    backgroundCanvas = QPixmap(q->size());
-    backgroundCanvas.fill(QColor(0,0,0,1));
-
-    boradCanvas = QPixmap(q->size());
-    // boradImg.fill(QColor(203, 52, 39,50));
-    boradCanvas.fill(Qt::transparent);
-
-    foregroundCanvas = QPixmap(q->size());
-    // foregroundImg.fill(QColor(73, 142, 250,50));
-    boradCanvas.fill(Qt::transparent);
-
     state = State::INIT;
     savaState();
 
@@ -33,6 +20,14 @@ BoardPrivate::BoardPrivate(Board* _q)
     controlPlatform->setVisible(false);
     controlPlatform->resize(500,200);
     controlPlatform->installEventFilter(q);
+
+    auto updateBackground = [this](const QColor& c){
+        qDebug() << "backgroud color" << c;
+        backgroundCanvas.fill(c);
+        q->update();
+    };
+    controlPlatform->connect(controlPlatform, &Drawer::backgroundOpacityChanged, controlPlatform, updateBackground);
+    controlPlatform->connect(controlPlatform, &Drawer::backgroundColorChanged, controlPlatform, updateBackground);
     controlPlatform->connect(controlPlatform, &Drawer::penSizeChanged, controlPlatform, [this](int value){
         foregroundCanvas.fill(Qt::transparent);
 
@@ -54,11 +49,13 @@ BoardPrivate::BoardPrivate(Board* _q)
         q->update();
     });
 
-    controlPlatform->connect(controlPlatform, &Drawer::backgroundOpacity, controlPlatform, [this](int value){
-        qDebug() << "alpha" << value << (qreal)value / 10;
-        backgroundCanvas.fill(QColor(0,0,0,(qreal)(255 * value / 10)));
-        q->update();
-    });
+    backgroundCanvas = QPixmap(q->size());
+    boradCanvas = QPixmap(q->size());
+    foregroundCanvas = QPixmap(q->size());
+
+    backgroundCanvas.fill(controlPlatform->backgroundColor());
+    boradCanvas.fill(Qt::transparent);
+    boradCanvas.fill(Qt::transparent);
 }
 
 BoardPrivate::~BoardPrivate()
@@ -99,13 +96,13 @@ void BoardPrivate::drawForeGroundImg(QPainter* p)
 
 void BoardPrivate::savaState()
 {
-    qDebug() << "push";
+    // qDebug() << "push";
     stateStack.push(state);
 }
 
 void BoardPrivate::restoreState()
 {
-    qDebug() << "pop";
+    // qDebug() << "pop";
     setState(stateStack.isEmpty() ? State::READY_TO_DRAW : stateStack.pop());
 }
 
@@ -116,7 +113,7 @@ void BoardPrivate::setState(State s)
         return;
     }
     state = s;
-    qDebug() << "current state" << s;
+    // qDebug() << "current state" << s;
     q->update();
 }
 
@@ -177,7 +174,6 @@ Board::Board(QWidget *parent, Qt::WindowFlags f)
     , d(new BoardPrivate(this))
 {
     this->setMouseTracking(true);
-    // this->setWindowState(Qt::WindowMaximized);
 }
 
 Board::~Board()
@@ -198,7 +194,7 @@ bool Board::eventFilter(QObject* watched, QEvent* event)
 {
     if(watched == d->controlPlatform)
     {
-        qDebug() << event->type();
+        // qDebug() << event->type();
         if(event->type() == QEvent::MouseButtonPress)
         {
             QMouseEvent* e = static_cast<QMouseEvent*>(event);
