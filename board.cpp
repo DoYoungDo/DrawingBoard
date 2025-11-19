@@ -10,6 +10,7 @@
 #include <QTimer>
 #include <QPen>
 #include <QPixmapCache>
+#include <QDateTime>
 
 BoardPrivate::BoardPrivate(Board* _q)
     :q(_q)
@@ -228,6 +229,8 @@ bool Board::eventFilter(QObject* watched, QEvent* event)
 
 void Board::paintEvent(QPaintEvent* event)
 {
+    qint64 start =  QDateTime::currentMSecsSinceEpoch();
+    qDebug() << "start" << start;
     Q_UNUSED(event);
 
     QPainter p(this);
@@ -236,6 +239,8 @@ void Board::paintEvent(QPaintEvent* event)
     d->drawBackgroundImg(&p);
     d->drawBoradImg(&p);
     d->drawForeGroundImg(&p);
+
+    qDebug() << "spent" << QDateTime::currentMSecsSinceEpoch() - start;
 }
 
 void Board::resizeEvent(QResizeEvent* event)

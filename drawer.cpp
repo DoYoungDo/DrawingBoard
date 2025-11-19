@@ -10,6 +10,7 @@
 #include <QRadioButton>
 #include <QSlider>
 #include <QBoxLayout>
+#include <QDateTime>
 
 
 PenButton::PenButton(Pen* p, QWidget* parent)
@@ -153,6 +154,10 @@ QColor Drawer::backgroundColor() const
 
 void Drawer::paintEvent(QPaintEvent* event)
 {
+    Q_UNUSED(event);
+    qint64 start =  QDateTime::currentMSecsSinceEpoch();
+    qDebug() << "drawer start" << start;
+
     QPainter p(this);
     p.setOpacity(0.5);
     p.setPen(Qt::transparent);
@@ -161,6 +166,8 @@ void Drawer::paintEvent(QPaintEvent* event)
     QRect r = this->rect().marginsRemoved(QMargins(1,25,1,1));
     p.drawRoundedRect(r,5,5);
 
+
+    qDebug() << "drawer spent" << QDateTime::currentMSecsSinceEpoch() - start;
     // this->setMask(QRegion(r));
 }
 
