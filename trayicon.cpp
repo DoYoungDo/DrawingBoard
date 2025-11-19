@@ -17,8 +17,8 @@ TrayIcon::TrayIcon(QObject *parent)
     menu->addAction("Draw", [this](){
         if(pBoard && pBoard->isVisible())
         {
-            pBoard->readyToDraw();
             pBoard->raise();
+            pBoard->readyToDraw();
             return;
         }
 
@@ -29,6 +29,7 @@ TrayIcon::TrayIcon(QObject *parent)
         pBoard->setAttribute(Qt::WA_TranslucentBackground, true);
         pBoard->installEventFilter(this);
         pBoard->showMaximized();
+        pBoard->raise();
     });
 
     menu->addSeparator();

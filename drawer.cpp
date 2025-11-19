@@ -6,6 +6,7 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QPainter>
+#include <QRadioButton>
 #include <QSlider>
 
 
@@ -74,26 +75,35 @@ void ColorButton::mouseDoubleClickEvent(QMouseEvent* event)
 }
 
 
-class DefaultPen : public Pen
+class InternalPen : public Pen
 {
 public:
-    DefaultPen()
-        :Pen(Qt::SolidPattern, 1, Qt::SolidLine,Qt::RoundCap,Qt::RoundJoin){
+    InternalPen(const QString& name, const QString& shapeFile, const QString& staticShapeFile,
+               const QBrush &brush = Qt::SolidPattern, qreal width = 1, Qt::PenStyle s = Qt::SolidLine,Qt::PenCapStyle c = Qt::RoundCap, Qt::PenJoinStyle j = Qt::RoundJoin)
+        :Pen(brush, width, s, c, j)
+        ,penName(name),penShapeFile(shapeFile),penStaticShapeFile(staticShapeFile)
+    {}
+    InternalPen(const InternalPen& pen)
+        :Pen(pen)
+        ,penName(pen.penName),penShapeFile(pen.penShapeFile),penStaticShapeFile(pen.penStaticShapeFile)
+    {}
+
+    QString name() const override{
+        return penName;
     }
 
-    // ~DefaultPen(){}
-
-    QString name() override{
-        return "default";
+    QPixmap shape() const override{
+        return QPixmap(penShapeFile);
     }
 
-    QPixmap shape() override{
-        return QPixmap(":/res/Icon.png");
+    QPixmap staticShape() const override{
+        return QPixmap(penStaticShapeFile);
     }
 
-    QPixmap staticShape() override{
-        return QPixmap(":/res/staticIcon.png");
-    }
+private:
+    QString penName;
+    QString penShapeFile;
+    QString penStaticShapeFile;
 };
 
 
@@ -103,19 +113,19 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     // this->setAttribute( Qt::WA_TranslucentBackground);
 
     pensContainer.clear();
-    pensContainer << new DefaultPen() << new DefaultPen;
+    pensContainer << new InternalPen("default",":/pen/res/Icon.png",":/pen/res/staticIcon.png")
+                  << new InternalPen("pencil",":/pen/res/pencil.png",":/pen/res/staticPencil.png",Qt::SolidPattern,1,Qt::SolidLine,Qt::SquareCap,Qt::RoundJoin);
     curPen = pensContainer.first();
 
     QList<PenButton*> penButtons;
     QButtonGroup* penButtonGroup = new QButtonGroup(this);
     penButtonGroup->setExclusive(true);
-    for(auto pen : pensContainer)
-    {
+    foreachPen([&](Pen* pen){
         auto btn = createPenButton(pen);
 
         penButtonGroup->addButton(btn);
         penButtons << btn;
-    }
+    });
 
     penButtons.first()->setChecked(true);
 
@@ -154,7 +164,9 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     penSizeSlider->setPageStep(10);
     penSizeSlider->setSingleStep(10);
     connect(penSizeSlider,&QSlider::valueChanged, this, [this, penSizeValueLabel](int value){
-        currentPen()->setWidth(value);
+        foreachPen([=](Pen* pen){
+            pen->setWidth(value);
+        });
         penSizeValueLabel->setText(QString::number(value));
         emit penSizeChanged(value);
     });
@@ -164,13 +176,28 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     penSizeSliderGroupLayout->addWidget(penSizeSlider, 1);
     penSizeSliderGroupLayout->addWidget(penSizeValueLabel, 0);
 
-
     QHBoxLayout* sliderLayout = new QHBoxLayout;
     sliderLayout->setContentsMargins(0,0,0,0);
     sliderLayout->setSpacing(0);
     sliderLayout->addLayout(backgroundAlphaSliderGroupLayout);
     sliderLayout->addLayout(penSizeSliderGroupLayout);
     sliderLayout->addStretch();
+
+    QRadioButton* backgroundRadioBtn = new QRadioButton("background",this);
+    backgroundRadioBtn->setCheckable(true);
+    QRadioButton* penRadioBtn = new QRadioButton("pen",this);
+    penRadioBtn->setCheckable(true);
+    penRadioBtn->setChecked(true);
+    QButtonGroup* radioButtonGroup = new QButtonGroup(this);
+    radioButtonGroup->setExclusive(true);
+    radioButtonGroup->addButton(backgroundRadioBtn);
+    radioButtonGroup->addButton(penRadioBtn);
+
+    QHBoxLayout* radioButtonLayout = new QHBoxLayout;
+    radioButtonLayout->setContentsMargins(0,0,0,0);
+    radioButtonLayout->setSpacing(10);
+    radioButtonLayout->addWidget(backgroundRadioBtn);
+    radioButtonLayout->addWidget(penRadioBtn);
 
     ColorButton* defaultColorBottonBL = createColorButton(Qt::black);
     defaultColorBottonBL->setChecked(true);
@@ -190,6 +217,12 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     colorButtonLayout->addWidget(defaultColorBottonB);
     colorButtonLayout->addStretch();
 
+    QVBoxLayout* colorLayout = new QVBoxLayout;
+    colorLayout->setContentsMargins(0,0,0,0);
+    colorLayout->setSpacing(10);
+    colorLayout->addLayout(radioButtonLayout);
+    colorLayout->addLayout(colorButtonLayout);
+
     QButtonGroup* colorButtonGroup = new QButtonGroup(this);
     colorButtonGroup->setExclusive(true);
     colorButtonGroup->addButton(defaultColorBottonBL);
@@ -203,7 +236,7 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     BottomLayout->setContentsMargins(0,0,0,0);
     BottomLayout->setSpacing(10);
     BottomLayout->addLayout(sliderLayout,1);
-    BottomLayout->addLayout(colorButtonLayout,1);
+    BottomLayout->addLayout(colorLayout,1);
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0,0,0,0);
@@ -220,7 +253,7 @@ Drawer::~Drawer()
     }
 }
 
-Pen* Drawer::currentPen()
+const Pen* Drawer::currentPen()
 {
     return curPen;
 }
@@ -258,21 +291,6 @@ void Drawer::mouseDoubleClickEvent(QMouseEvent* event)
     event->accept();
 }
 
-void Drawer::onColorButtonClicked(QColor c)
-{
-    currentPen()->setColor(c);
-    emit penColorChanged(c);
-}
-
-void Drawer::onColorButtonDoubleClicked(ColorButton* btn)
-{
-    QColor c = QColorDialog::getColor(btn->getColor(), this);
-    if(c.isValid())
-    {
-        btn->setColor(c);
-    }
-}
-
 PenButton* Drawer::createPenButton(Pen* p)
 {
     PenButton* btn = new PenButton(p, this);
@@ -291,11 +309,39 @@ ColorButton* Drawer::createColorButton(QColor c)
     btn->setFixedSize(30,30);
     btn->setCheckable(true);
     connect(btn, &ColorButton::clicked, this, [btn, this](){
-        onColorButtonClicked(btn->getColor());
+        auto c = btn->getColor();
+        foreachPen([c](Pen*pen){pen->setColor(c);});
+        emit penColorChanged(c);
     });
     connect(btn, &ColorButton::doubleClicked, this, [btn, this](){
-        onColorButtonDoubleClicked(btn);
+        QColor c = QColorDialog::getColor(btn->getColor(), this);
+        if(c.isValid())
+        {
+            btn->setColor(c);
+
+            foreachPen([c](Pen*pen){pen->setColor(c);});
+            emit penColorChanged(c);
+        }
     });
     return btn;
+}
+
+void Drawer::foreachPen(std::function<void (Pen*)> cb)
+{
+    for(Pen* pen : std::as_const(pensContainer))
+    {
+        cb(pen);
+    }
+}
+
+Pen* Drawer::findPen(std::function<bool (Pen*)> cb)
+{
+    for(Pen* pen : std::as_const(pensContainer))
+    {
+        if(cb(pen)){
+            return pen;
+        }
+    }
+    return nullptr;
 }
 

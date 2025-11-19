@@ -45,7 +45,7 @@ public:
     explicit Drawer(QWidget *parent = nullptr,  Qt::WindowFlags f = Qt::WindowFlags());
     ~Drawer();
 
-    Pen* currentPen();
+    const Pen* currentPen();
 
 protected:
     virtual void paintEvent(QPaintEvent* event) override;
@@ -56,15 +56,15 @@ protected:
 
 signals:
     void backgroundOpacity(int size);
+    void backgroundColorChanged(const QColor*);
     void penSizeChanged(int size);
     void penColorChanged(const QColor& c);
     void currentPenChanged(Pen*);
-private slots:
-    void onColorButtonClicked(QColor c);
-    void onColorButtonDoubleClicked(ColorButton* btn);
 private:
     PenButton* createPenButton(Pen* p);
     ColorButton* createColorButton(QColor c);
+    void foreachPen(std::function<void(Pen*)> cb);
+    Pen* findPen(std::function<bool(Pen*)> cb);
 
 private:
     QList<Pen*> pensContainer;

@@ -352,7 +352,7 @@ void Board::drawPen(QPoint mousePos)
 {
     d->foregroundCanvas.fill(Qt::transparent);
 
-    auto pix = d->controlPlatform->currentPen()->shape();// QPixmap(":/res/Icon.png");
+    auto pix = d->controlPlatform->currentPen()->shape();
 
     mousePos.setY(mousePos.y() - pix.height());
 

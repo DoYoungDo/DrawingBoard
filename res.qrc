@@ -3,4 +3,10 @@
         <file>res/Icon.png</file>
         <file>res/staticIcon.png</file>
     </qresource>
+    <qresource prefix="/pen">
+        <file>res/pencil.png</file>
+        <file>res/staticPencil.png</file>
+        <file>res/Icon.png</file>
+        <file>res/staticIcon.png</file>
+    </qresource>
 </RCC>

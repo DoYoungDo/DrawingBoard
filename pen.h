@@ -14,9 +14,9 @@ public:
     Pen(const QPen &pen) noexcept:QPen(pen){}
 
     virtual ~Pen() = default;
-    virtual QString name() = 0;
-    virtual QPixmap shape() = 0;
-    virtual QPixmap staticShape() = 0;
+    virtual QString name() const = 0;
+    virtual QPixmap shape() const = 0;
+    virtual QPixmap staticShape() const = 0;
 };
 
 #endif // PEN_H
