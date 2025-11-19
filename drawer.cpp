@@ -43,7 +43,7 @@ ColorButton::ColorButton(const QColor& c, QWidget* parent)
 void ColorButton::setColor(const QColor& c)
 {
     color = c;
-    update();
+    repaint();
 }
 
 void ColorButton::paintEvent(QPaintEvent* event)
@@ -132,6 +132,12 @@ Drawer::~Drawer()
     if(!pensContainer.isEmpty())
     {
         qDeleteAll(pensContainer);
+    }
+
+    if(d)
+    {
+        delete d;
+        d = nullptr;
     }
 }
 

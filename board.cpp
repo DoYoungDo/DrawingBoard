@@ -9,6 +9,7 @@
 #include <QApplication>
 #include <QTimer>
 #include <QPen>
+#include <QPixmapCache>
 
 BoardPrivate::BoardPrivate(Board* _q)
     :q(_q)
@@ -65,6 +66,8 @@ BoardPrivate::~BoardPrivate()
         delete controlPlatform;
         controlPlatform = nullptr;
     }
+
+    QPixmapCache::clear();
 }
 
 void BoardPrivate::drawBackgroundImg(QPainter* p)
@@ -173,6 +176,11 @@ Board::Board(QWidget *parent, Qt::WindowFlags f)
     : QWidget{parent, f}
     , d(new BoardPrivate(this))
 {
+
+    this->setAttribute(Qt::WA_OpaquePaintEvent);
+    this->setAttribute(Qt::WA_NoSystemBackground);
+    this->setAutoFillBackground(false);
+
     this->setMouseTracking(true);
 }
 
