@@ -1,6 +1,7 @@
 #include "trayicon.h"
 
 #include "board.h"
+#include "preview.h"
 
 #include <QApplication>
 #include <QKeyEvent>
@@ -30,6 +31,23 @@ TrayIcon::TrayIcon(QObject *parent)
         pBoard->installEventFilter(this);
         pBoard->showMaximized();
         pBoard->raise();
+    });
+    menu->addAction("Save", QKeySequence::Save, [this](){
+        if(!pBoard)
+        {
+            return;
+        }
+
+        if(pPreview)
+        {
+            pPreview->deleteLater();
+            pPreview = nullptr;
+        }
+
+        pPreview = new Preview(pBoard->save());
+        pPreview->setWindowFlags(Qt::WindowStaysOnTopHint);
+        pPreview->resize(500,300);
+        pPreview->show();
     });
 
     menu->addSeparator();

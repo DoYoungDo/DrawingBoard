@@ -4,6 +4,7 @@
 #include <QSystemTrayIcon>
 
 class Board;
+class Preview;
 
 class TrayIcon : public QSystemTrayIcon
 {
@@ -15,6 +16,7 @@ public:
 
 private:
     Board* pBoard = nullptr;
+    Preview* pPreview = nullptr;
 };
 
 #endif // TRAYICON_H

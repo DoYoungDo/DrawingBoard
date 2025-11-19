@@ -199,6 +199,11 @@ void Board::readyToDraw()
     d->setState((BoardPrivate::State)(d->state | BoardPrivate::READY_TO_DRAW));
 }
 
+QPixmap Board::save()
+{
+    return d->boradCanvas;
+}
+
 bool Board::eventFilter(QObject* watched, QEvent* event)
 {
     if(watched == d->controlPlatform)

@@ -14,7 +14,8 @@ public:
     ~Board();
 
     void readyToDraw();
-    // QWidget interface
+
+    QPixmap save();
 protected:
     virtual bool eventFilter(QObject* watched, QEvent* event) override;
     virtual void paintEvent(QPaintEvent* event) override;
