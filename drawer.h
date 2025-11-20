@@ -75,6 +75,7 @@ signals:
     void currentPenChanged(Pen*);
     void collapsed();
     void expanded();
+    void downClicked();
 
 public slots:
     void collapse();

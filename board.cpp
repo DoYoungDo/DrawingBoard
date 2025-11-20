@@ -1,6 +1,7 @@
 #include "boardprivate.h"
 #include "board.h"
 #include "drawer.h"
+#include "preview.h"
 
 #include <QPainter>
 #include <QPropertyAnimation>
@@ -51,31 +52,55 @@ BoardPrivate::BoardPrivate(Board* _q)
         q->update();
     });
     controlPlatform->connect(controlPlatform, &Drawer::collapsed, controlPlatform, [this](){
-        savedControlPlatformGeometry = controlPlatform->saveGeometry();
-
-        savedControlPlatformGeometry1 = controlPlatform->geometry();
+        savedControlPlatformGeometry = controlPlatform->geometry();
 
         QPropertyAnimation *anim = new QPropertyAnimation(controlPlatform, "geometry", q);
         q->connect(anim, &QPropertyAnimation::finished, q, [anim](){
             anim->deleteLater();
         });
         anim->setDuration(100);
-        anim->setStartValue(savedControlPlatformGeometry1);
-        anim->setEndValue(savedControlPlatformGeometry1.marginsRemoved(QMargins(0,180,0,0)));
+        anim->setStartValue(savedControlPlatformGeometry);
+        anim->setEndValue(savedControlPlatformGeometry.marginsRemoved(QMargins(0,180,0,0)));
         anim->start();
     });
     controlPlatform->connect(controlPlatform, &Drawer::expanded, controlPlatform, [this](){
-        // controlPlatform->restoreGeometry(savedControlPlatformGeometry);
         QPropertyAnimation *anim = new QPropertyAnimation(controlPlatform, "geometry", q);
         q->connect(anim, &QPropertyAnimation::finished, q, [anim](){
             anim->deleteLater();
         });
         anim->setDuration(100);
         anim->setStartValue(controlPlatform->geometry());
-        anim->setEndValue(savedControlPlatformGeometry1);
+        anim->setEndValue(savedControlPlatformGeometry);
         anim->start();
+    });
+    controlPlatform->connect(controlPlatform, &Drawer::downClicked, controlPlatform, [this](){
+        if(previewPort)
+        {
+            previewPort->close();
 
-        // savedControlPlatformGeometry1 = controlPlatform->geometry()
+            delete previewPort;
+            previewPort = nullptr;
+        }
+
+        previewPort = new Preview(q->save(), q);
+        previewPort->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Tool);
+        previewPort->resize(q->size());
+        previewPort->show();
+
+        QTimer::singleShot(300,[this](){
+            int w,h;w = h = controlPlatform->height() / 4  * 3;
+            QSize targetSize(w,h);
+            QPoint targetPoint(controlPlatform->geometry().right() + 20, q->geometry().bottom() - h);
+
+            QPropertyAnimation *anim = new QPropertyAnimation(previewPort, "geometry");
+            q->connect(anim, &QPropertyAnimation::finished, q, [anim](){
+                anim->deleteLater();
+            });
+            anim->setDuration(300);
+            anim->setStartValue(previewPort->geometry());
+            anim->setEndValue(QRect(/*previewPort->mapFromGlobal(*/targetPoint/*)*/,targetSize));
+            anim->start();
+        });
     });
 
 

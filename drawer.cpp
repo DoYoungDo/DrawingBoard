@@ -240,10 +240,10 @@ void Drawer::expand()
 {
     if(d->expand)
     {
+        emit expanded();
+
         d->expand();
         d->isExpand = true;
-
-        emit expanded();
     }
 }
 
@@ -448,9 +448,17 @@ QBoxLayout* Drawer::setupCapabilityButtonUi()
         checked ? collapse() : expand();
     });
 
+    QIcon iconDown;
+    iconDown.addFile(":/res/icons/down.svg",QSize(30,30),QIcon::Normal);
+    CapabilityButton* downButton = new CapabilityButton(iconDown, this);
+    downButton->setFixedSize(30,30);
+    downButton->setCheckable(false);
+    connect(downButton, &CapabilityButton::clicked, this, &Drawer::downClicked);
+
     QBoxLayout* layout = createLayout(Qt::Horizontal, 10, QMargins(10, 0, 10, 0));
     layout->addStretch();
     layout->addWidget(btn);
+    layout->addWidget(downButton);
     layout->addStretch();
 
     return layout;

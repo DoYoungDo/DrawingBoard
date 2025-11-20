@@ -10,6 +10,7 @@ class QPoint;
 
 class Board;
 class Drawer;
+class Preview;
 
 class BoardPrivate{
 public:
@@ -54,8 +55,9 @@ public:
     QPoint mouseLastPos;
 
     Drawer* controlPlatform = nullptr;
-    QByteArray savedControlPlatformGeometry;
-    QRect savedControlPlatformGeometry1;
+    QRect savedControlPlatformGeometry;
+
+    Preview* previewPort = nullptr;
 };
 
 #endif // BOARDPRIVATE_H
