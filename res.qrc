@@ -1,12 +1,13 @@
 <RCC>
     <qresource prefix="/">
-        <file>res/Icon.png</file>
-        <file>res/staticIcon.png</file>
+        <file>res/pens/pen_default_static.png</file>
+        <file>res/pens/pen_default.png</file>
+        <file>res/pens/pen_pencil_static.png</file>
+        <file>res/pens/pen_pencil.png</file>
+        <file>res/icons/arraw_ collapse.svg</file>
+        <file>res/icons/arraw_expand.svg</file>
     </qresource>
-    <qresource prefix="/pen">
-        <file>res/pencil.png</file>
-        <file>res/staticPencil.png</file>
-        <file>res/Icon.png</file>
-        <file>res/staticIcon.png</file>
+    <qresource prefix="/icon">
+        <file>res/pens/pen_default.png</file>
     </qresource>
 </RCC>

@@ -77,6 +77,26 @@ void ColorButton::mouseDoubleClickEvent(QMouseEvent* event)
 }
 
 
+CapabilityButton::CapabilityButton(const QIcon& ic, QWidget* parent)
+    :QPushButton(ic,QString(),parent)
+{}
+
+void CapabilityButton::paintEvent(QPaintEvent* event)
+{
+    QIcon ic = this->icon();
+    if(ic.isNull())
+    {
+        QPushButton::paintEvent(event);
+        return;
+    }
+
+    QPainter p(this);
+    p.setPen(Qt::transparent);
+    p.setBrush(Qt::transparent);
+    p.drawPixmap(this->rect(), ic.pixmap(this->iconSize(), (this->isCheckable() && this->isChecked()) ? QIcon::Selected : QIcon::Normal));
+}
+
+
 class InternalPen : public Pen
 {
 public:
@@ -109,10 +129,22 @@ private:
 };
 
 
-
 DrawerPrivate::DrawerPrivate()
 {
     backgroundColor = QColor(0,0,0,1);
+}
+
+void DrawerPrivate::addShowOrHide(std::function<void (std::function<void ()>, bool)> showOrHide)
+{
+    auto oldCollapse = collapse;
+    collapse = [oldCollapse,showOrHide](){
+        showOrHide(oldCollapse, false);
+    };
+
+    auto oldExpand = expand;
+    expand = [oldExpand,showOrHide](){
+        showOrHide(oldExpand, true);
+    };
 }
 
 
@@ -120,9 +152,11 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     : QWidget{parent, f}
     ,d(new DrawerPrivate)
 {
+    // this->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+
     pensContainer.clear();
-    pensContainer << new InternalPen("default",":/pen/res/Icon.png",":/pen/res/staticIcon.png")
-                  << new InternalPen("pencil",":/pen/res/pencil.png",":/pen/res/staticPencil.png",Qt::SolidPattern,1,Qt::SolidLine,Qt::SquareCap,Qt::RoundJoin);
+    pensContainer << new InternalPen("default",":/res/pens/pen_default.png",":/res/pens/pen_default_static.png")
+                  << new InternalPen("pencil",":/res/pens/pen_pencil.png",":/res/pens/pen_pencil_static.png",Qt::SolidPattern,1,Qt::SolidLine,Qt::SquareCap,Qt::RoundJoin);
     curPen = pensContainer.first();
 
     setupUi();
@@ -191,15 +225,38 @@ void Drawer::mouseDoubleClickEvent(QMouseEvent* event)
     event->accept();
 }
 
+void Drawer::collapse()
+{
+    if(d->collapse)
+    {
+        d->collapse();
+        d->isExpand = false;
+
+        emit collapsed();
+    }
+}
+
+void Drawer::expand()
+{
+    if(d->expand)
+    {
+        d->expand();
+        d->isExpand = true;
+
+        emit expanded();
+    }
+}
+
 void Drawer::setupUi()
 {
-    QBoxLayout* bottomLayout = createLayout(Qt::Horizontal, 10);
-    bottomLayout->addLayout(setupSliderUi());
-    bottomLayout->addLayout(setupColorButtonUi());
+    QBoxLayout* controlLayout = createLayout(Qt::Horizontal, 10);
+    controlLayout->addLayout(setupSliderUi());
+    controlLayout->addLayout(setupColorButtonUi());
 
-    QBoxLayout* layout = createLayout(Qt::Vertical, 10);
+    QBoxLayout* layout = createLayout(Qt::Vertical, 10, QMargins(10,0,10,10));
     layout->addLayout(setupPenUi(),1);
-    layout->addLayout(bottomLayout),1;
+    layout->addLayout(controlLayout,1);
+    layout->addLayout(setupCapabilityButtonUi(), 1);
 
     this->setLayout(layout);
 }
@@ -222,6 +279,17 @@ QBoxLayout* Drawer::setupPenUi()
     }
     layout->addStretch();
 
+
+    d->addShowOrHide([=](std::function<void()> oldCall, bool v){
+        if(oldCall){
+            oldCall();
+        }
+
+        for(auto penBtn : penButtons){
+            penBtn->setVisible(v);
+        }
+    });
+
     return layout;
 }
 
@@ -229,13 +297,13 @@ QBoxLayout* Drawer::setupSliderUi()
 {
     QLabel * backgroundAlphaValueLabel = new QLabel(QString::number(1));
     backgroundAlphaValueLabel->setAlignment(Qt::AlignCenter);
-    d->backgroundAlphaSlider = new QSlider(Qt::Vertical, this);
-    d->backgroundAlphaSlider->setToolTip("background");
-    d->backgroundAlphaSlider->setRange(1,10);
-    d->backgroundAlphaSlider->setValue(1);
-    d->backgroundAlphaSlider->setPageStep(1);
-    d->backgroundAlphaSlider->setSingleStep(1);
-    connect(d->backgroundAlphaSlider,&QSlider::valueChanged, this, [this, backgroundAlphaValueLabel](int value){
+    QSlider* backgroundAlphaSlider = new QSlider(Qt::Vertical, this);
+    backgroundAlphaSlider->setToolTip("background");
+    backgroundAlphaSlider->setRange(1,10);
+    backgroundAlphaSlider->setValue(1);
+    backgroundAlphaSlider->setPageStep(1);
+    backgroundAlphaSlider->setSingleStep(1);
+    connect(backgroundAlphaSlider,&QSlider::valueChanged, this, [this, backgroundAlphaValueLabel](int value){
         backgroundAlphaValueLabel->setText(QString::number(value));
 
         int alpha = 255 * value /10;
@@ -243,18 +311,18 @@ QBoxLayout* Drawer::setupSliderUi()
         emit backgroundOpacityChanged(d->backgroundColor);
     });
     QBoxLayout* backgroundAlphaSliderGroupLayout = createLayout(Qt::Vertical,0, QMargins(10,0,10,0));
-    backgroundAlphaSliderGroupLayout->addWidget(d->backgroundAlphaSlider, 1);
+    backgroundAlphaSliderGroupLayout->addWidget(backgroundAlphaSlider, 1);
     backgroundAlphaSliderGroupLayout->addWidget(backgroundAlphaValueLabel, 0);
 
     QLabel * penSizeValueLabel = new QLabel(QString::number(1));
     penSizeValueLabel->setAlignment(Qt::AlignCenter);
-    d->penSizeSlider = new QSlider(Qt::Vertical, this);
-    d->penSizeSlider->setToolTip("pen size");
-    d->penSizeSlider->setRange(1,100);
-    d->penSizeSlider->setValue(1);
-    d->penSizeSlider->setPageStep(10);
-    d->penSizeSlider->setSingleStep(10);
-    connect(d->penSizeSlider,&QSlider::valueChanged, this, [this, penSizeValueLabel](int value){
+    QSlider* penSizeSlider = new QSlider(Qt::Vertical, this);
+    penSizeSlider->setToolTip("pen size");
+    penSizeSlider->setRange(1,100);
+    penSizeSlider->setValue(1);
+    penSizeSlider->setPageStep(10);
+    penSizeSlider->setSingleStep(10);
+    connect(penSizeSlider,&QSlider::valueChanged, this, [this, penSizeValueLabel](int value){
         foreachPen([=](Pen* pen){
             pen->setWidth(value);
         });
@@ -262,7 +330,7 @@ QBoxLayout* Drawer::setupSliderUi()
         emit penSizeChanged(value);
     });
     QBoxLayout* penSizeSliderGroupLayout = createLayout(Qt::Vertical,0, QMargins(10,0,10,0));
-    penSizeSliderGroupLayout->addWidget(d->penSizeSlider, 1);
+    penSizeSliderGroupLayout->addWidget(penSizeSlider, 1);
     penSizeSliderGroupLayout->addWidget(penSizeValueLabel, 0);
 
     QBoxLayout* sliderLayout = createLayout(Qt::Horizontal, 10);
@@ -270,6 +338,19 @@ QBoxLayout* Drawer::setupSliderUi()
     sliderLayout->addLayout(backgroundAlphaSliderGroupLayout);
     sliderLayout->addLayout(penSizeSliderGroupLayout);
     sliderLayout->addStretch();
+
+
+    d->addShowOrHide([=](std::function<void()> oldCall, bool v){
+        if(oldCall){
+            oldCall();
+        }
+
+        backgroundAlphaSlider->setVisible(v);
+        backgroundAlphaValueLabel->setVisible(v);
+
+        penSizeSlider->setVisible(v);
+        penSizeValueLabel->setVisible(v);
+    });
 
     return sliderLayout;
 }
@@ -335,7 +416,44 @@ QBoxLayout* Drawer::setupColorButtonUi()
     colorLayout->addLayout(radioButtonLayout);
     colorLayout->addLayout(colorButtonLayout);
 
+
+    d->addShowOrHide([=](std::function<void()> oldCall, bool v){
+        if(oldCall){
+            oldCall();
+        }
+
+        for(auto btn : radioButtonGroup->buttons())
+        {
+            btn->setVisible(v);
+        }
+
+        for(auto btn: colorButtonGroup->buttons())
+        {
+            btn->setVisible(v);
+        }
+    });
+
     return colorLayout;
+}
+
+QBoxLayout* Drawer::setupCapabilityButtonUi()
+{
+    QIcon icon;
+    icon.addFile(":/res/icons/arraw_ collapse.svg",QSize(30,30),QIcon::Normal);
+    icon.addFile(":/res/icons/arraw_expand.svg",QSize(30,30),QIcon::Selected);
+    CapabilityButton* btn = new CapabilityButton(icon, this);
+    btn->setFixedSize(30,30);
+    btn->setCheckable(true);
+    connect(btn, &CapabilityButton::clicked, this, [this](bool checked){
+        checked ? collapse() : expand();
+    });
+
+    QBoxLayout* layout = createLayout(Qt::Horizontal, 10, QMargins(10, 0, 10, 0));
+    layout->addStretch();
+    layout->addWidget(btn);
+    layout->addStretch();
+
+    return layout;
 }
 
 QBoxLayout* Drawer::createLayout(Qt::Orientation o, int spacing, const QMargins& m)
@@ -343,6 +461,7 @@ QBoxLayout* Drawer::createLayout(Qt::Orientation o, int spacing, const QMargins&
     QBoxLayout* layout = new QBoxLayout(o == Qt::Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
     layout->setSpacing(spacing);
     layout->setContentsMargins(m);
+    layout->setSizeConstraint(QBoxLayout::SetMinimumSize);
     return layout;
 }
 
@@ -411,3 +530,4 @@ QList<T> Drawer::mapPen(std::function<T (Pen*)> cb)
     }
     return std::move(list);
 }
+

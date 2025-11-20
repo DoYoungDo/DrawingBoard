@@ -40,6 +40,16 @@ private:
     QColor color;
 };
 
+class CapabilityButton : public QPushButton
+{
+    Q_OBJECT
+public:
+    CapabilityButton(const QIcon& ic, QWidget *parent = nullptr);
+
+protected:
+    virtual void paintEvent(QPaintEvent* event) override;
+};
+
 class Drawer : public QWidget
 {
     Q_OBJECT
@@ -63,11 +73,18 @@ signals:
     void penSizeChanged(int size);
     void penColorChanged(const QColor&);
     void currentPenChanged(Pen*);
+    void collapsed();
+    void expanded();
+
+public slots:
+    void collapse();
+    void expand();
 private:
     void setupUi();
     QBoxLayout* setupPenUi();
     QBoxLayout* setupSliderUi();
     QBoxLayout* setupColorButtonUi();
+    QBoxLayout* setupCapabilityButtonUi();
     QBoxLayout* createLayout(Qt::Orientation o, int spacing = 0, const QMargins& m = QMargins(0,0,0,0));
 
     PenButton* createPenButton(Pen* p);

@@ -6,12 +6,14 @@
 #include <QApplication>
 #include <QKeyEvent>
 #include <QMenu>
+#include <QPropertyAnimation>
+#include <QTimer>
 
 
 TrayIcon::TrayIcon(QObject *parent)
     : QSystemTrayIcon{parent}
 {
-    this->setIcon(QIcon(":/res/Icon.png"));
+    this->setIcon(QIcon(":/icon/res/pens/pen_default.png"));
     this->setToolTip("DrawingBoard");
 
     QMenu* menu = new QMenu;
@@ -46,8 +48,15 @@ TrayIcon::TrayIcon(QObject *parent)
 
         pPreview = new Preview(pBoard->save());
         pPreview->setWindowFlags(Qt::WindowStaysOnTopHint);
-        pPreview->resize(500,300);
+        pPreview->resize(pBoard->size());
         pPreview->show();
+        QTimer::singleShot(500,[this](){
+            QPropertyAnimation *anim = new QPropertyAnimation(pPreview, "geometry", this);
+            anim->setDuration(400);
+            anim->setStartValue(pPreview->geometry());
+            anim->setEndValue(QRect(pBoard->rect().bottomRight()- QPoint(100, 80), QSize(100, 80)));
+            anim->start();
+        });
     });
 
     menu->addSeparator();

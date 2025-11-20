@@ -54,6 +54,8 @@ public:
     QPoint mouseLastPos;
 
     Drawer* controlPlatform = nullptr;
+    QByteArray savedControlPlatformGeometry;
+    QRect savedControlPlatformGeometry1;
 };
 
 #endif // BOARDPRIVATE_H

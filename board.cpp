@@ -20,7 +20,7 @@ BoardPrivate::BoardPrivate(Board* _q)
 
     controlPlatform = new Drawer(q);
     controlPlatform->setVisible(false);
-    controlPlatform->resize(500,200);
+    // controlPlatform->resize(500,250);
     controlPlatform->installEventFilter(q);
 
     auto updateBackground = [this](const QColor& c){
@@ -50,6 +50,34 @@ BoardPrivate::BoardPrivate(Board* _q)
 
         q->update();
     });
+    controlPlatform->connect(controlPlatform, &Drawer::collapsed, controlPlatform, [this](){
+        savedControlPlatformGeometry = controlPlatform->saveGeometry();
+
+        savedControlPlatformGeometry1 = controlPlatform->geometry();
+
+        QPropertyAnimation *anim = new QPropertyAnimation(controlPlatform, "geometry", q);
+        q->connect(anim, &QPropertyAnimation::finished, q, [anim](){
+            anim->deleteLater();
+        });
+        anim->setDuration(100);
+        anim->setStartValue(savedControlPlatformGeometry1);
+        anim->setEndValue(savedControlPlatformGeometry1.marginsRemoved(QMargins(0,180,0,0)));
+        anim->start();
+    });
+    controlPlatform->connect(controlPlatform, &Drawer::expanded, controlPlatform, [this](){
+        // controlPlatform->restoreGeometry(savedControlPlatformGeometry);
+        QPropertyAnimation *anim = new QPropertyAnimation(controlPlatform, "geometry", q);
+        q->connect(anim, &QPropertyAnimation::finished, q, [anim](){
+            anim->deleteLater();
+        });
+        anim->setDuration(100);
+        anim->setStartValue(controlPlatform->geometry());
+        anim->setEndValue(savedControlPlatformGeometry1);
+        anim->start();
+
+        // savedControlPlatformGeometry1 = controlPlatform->geometry()
+    });
+
 
     backgroundCanvas = QPixmap(q->size());
     boradCanvas = QPixmap(q->size());
