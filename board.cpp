@@ -436,8 +436,10 @@ void Board::drawPoint(QPoint pointPos)
 {
     if(d->state & BoardPrivate::READY_TO_DRAW)
     {
+        const Pen* pen = d->controlPlatform->currentPen();
         QPainter p(&d->boradCanvas);
-        p.setPen(*d->controlPlatform->currentPen());
+        p.setOpacity(qreal((qreal)pen->color().alpha() / (qreal)255));
+        p.setPen(*pen);
         p.drawPoint(pointPos);
     }
 }
@@ -446,7 +448,10 @@ void Board::drawLine(QPoint lastMousePos, QPoint mousePos)
 {
     if(d->state & BoardPrivate::READY_TO_DRAW)
     {
+        const Pen* pen = d->controlPlatform->currentPen();
+
         QPainter painter(&d->boradCanvas);
+        painter.setOpacity(qreal((qreal)pen->color().alpha() / (qreal)255));
         // 设置画笔属性
         painter.setPen(*d->controlPlatform->currentPen());
         painter.drawLine(lastMousePos, mousePos);

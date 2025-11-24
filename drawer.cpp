@@ -331,10 +331,30 @@ QBoxLayout* Drawer::setupSliderUi()
     penSizeSliderGroupLayout->addWidget(penSizeSlider, 1);
     penSizeSliderGroupLayout->addWidget(penSizeValueLabel, 0);
 
+    QLabel * penAlphaValueLabel = new QLabel(QString::number(1));
+    penAlphaValueLabel->setAlignment(Qt::AlignCenter);
+    QSlider* penAlphaSlider = new QSlider(Qt::Vertical, this);
+    penAlphaSlider->setToolTip("pen size");
+    penAlphaSlider->setRange(1,255);
+    penAlphaSlider->setValue(255);
+    penAlphaSlider->setPageStep(10);
+    penAlphaSlider->setSingleStep(10);
+    connect(penAlphaSlider,&QSlider::valueChanged, this, [this, penAlphaValueLabel](int value){
+        foreachPen([=](Pen* pen){
+            QColor c = pen->color();
+            c.setAlpha(value);
+            pen->setColor(c);
+        });
+    });
+    QBoxLayout* penAlphaSliderGroupLayout = createLayout(Qt::Vertical,0, QMargins(10,0,10,0));
+    penAlphaSliderGroupLayout->addWidget(penAlphaSlider, 1);
+    penAlphaSliderGroupLayout->addWidget(penAlphaValueLabel, 0);
+
     QBoxLayout* sliderLayout = createLayout(Qt::Horizontal, 10);
     sliderLayout->addStretch();
     sliderLayout->addLayout(backgroundAlphaSliderGroupLayout);
     sliderLayout->addLayout(penSizeSliderGroupLayout);
+    sliderLayout->addLayout(penAlphaSliderGroupLayout);
     sliderLayout->addStretch();
 
 
@@ -348,6 +368,9 @@ QBoxLayout* Drawer::setupSliderUi()
 
         penSizeSlider->setVisible(v);
         penSizeValueLabel->setVisible(v);
+
+        penAlphaSlider->setVisible(v);
+        penAlphaValueLabel->setVisible(v);
     });
 
     return sliderLayout;
@@ -492,7 +515,11 @@ ColorButton* Drawer::createColorButton(QColor c, std::function<void (const QColo
     btn->setCheckable(true);
     connect(btn, &ColorButton::clicked, this, [btn,colorChangedCb, this](){
         auto c = btn->getColor();
-        foreachPen([c](Pen*pen){pen->setColor(c);});
+        foreachPen([c](Pen*pen){
+            auto color = c;
+            color.setAlpha(pen->color().alpha());
+            pen->setColor(color);
+        });
         colorChangedCb(c);
     });
     connect(btn, &ColorButton::doubleClicked, this, [btn,colorChangedCb, this](){
