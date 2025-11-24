@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+class QBoxLayout;
+
 class Preview : public QWidget
 {
     Q_OBJECT
@@ -11,9 +13,35 @@ public:
 
 protected:
     virtual void paintEvent(QPaintEvent* event) override;
+    virtual void mousePressEvent(QMouseEvent* event) override;
+    virtual void mouseReleaseEvent(QMouseEvent* event) override;
+    virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
+    virtual void mouseMoveEvent(QMouseEvent* event) override;
+    virtual void resizeEvent(QResizeEvent* event) override;
+
+signals:
+    void doubleClicked();
+    void minButtonClicked();
+    void closeButtonClicked();
+public:
+    void setMinModeSize(const QSize& s);
+    QSize getMinModeSize();
+    void setMaxModeSize(const QSize& s);
+    QSize getMaxModeSize();
+
+    void showMin();
+    void showMax();
+    bool isMaxMode();
+    bool isMaxMode(const QSize& s);
+
+private:
+    void setupUi();
+    QBoxLayout* setupToolButtonUi();
 
 private:
     QPixmap pix;
+    QSize maxSize;
+    QSize minSize;
 };
 
 #endif // PREVIEW_H

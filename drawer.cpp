@@ -152,8 +152,6 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     : QWidget{parent, f}
     ,d(new DrawerPrivate)
 {
-    // this->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-
     pensContainer.clear();
     pensContainer << new InternalPen("default",":/res/pens/pen_default.png",":/res/pens/pen_default_static.png")
                   << new InternalPen("pencil",":/res/pens/pen_pencil.png",":/res/pens/pen_pencil_static.png",Qt::SolidPattern,1,Qt::SolidLine,Qt::SquareCap,Qt::RoundJoin);
@@ -195,9 +193,9 @@ void Drawer::paintEvent(QPaintEvent* event)
     QPainter p(this);
     p.setOpacity(0.5);
     p.setPen(Qt::transparent);
-    p.setBrush(QColor(255,255,255,120));
+    p.setBrush(QColor(125,125,125,120));
 
-    QRect r = this->rect().marginsRemoved(QMargins(1,25,1,1));
+    QRect r = this->rect().marginsRemoved(QMargins(1,d->isExpand ? 25 : 1,1,1));
     p.drawRoundedRect(r,5,5);
 
 
@@ -431,6 +429,8 @@ QBoxLayout* Drawer::setupColorButtonUi()
         {
             btn->setVisible(v);
         }
+
+        colorLayout->setSpacing(v ? 10 : 0);
     });
 
     return colorLayout;
@@ -469,7 +469,7 @@ QBoxLayout* Drawer::createLayout(Qt::Orientation o, int spacing, const QMargins&
     QBoxLayout* layout = new QBoxLayout(o == Qt::Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
     layout->setSpacing(spacing);
     layout->setContentsMargins(m);
-    layout->setSizeConstraint(QBoxLayout::SetMinimumSize);
+    layout->setSizeConstraint(QBoxLayout::SetNoConstraint);
     return layout;
 }
 

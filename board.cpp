@@ -81,16 +81,52 @@ BoardPrivate::BoardPrivate(Board* _q)
             delete previewPort;
             previewPort = nullptr;
         }
+        QPixmap pic = q->save();
+        if(pic.isNull())
+        {
+            return;
+        }
 
-        previewPort = new Preview(q->save(), q);
-        previewPort->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Tool);
-        previewPort->resize(q->size());
-        previewPort->show();
+        previewPort = new Preview(pic, q);
+        previewPort->setMaxModeSize(q->size());
+        previewPort->setMinModeSize(QSize(controlPlatform->width(),controlPlatform->width()));
+        previewPort->showMax();
 
-        QTimer::singleShot(300,[this](){
-            int w,h;w = h = controlPlatform->height() / 4  * 3;
-            QSize targetSize(w,h);
-            QPoint targetPoint(controlPlatform->geometry().right() + 20, q->geometry().bottom() - h);
+        auto close = [this](){
+            if(previewPort && !previewPort->isMaxMode()){
+                previewPort->close();
+                previewPort->deleteLater();
+                previewPort = nullptr;
+            }
+        };
+
+        auto showMin = [this, close](){
+            QSize targetSize = previewPort->getMinModeSize();
+            QPoint targetPoint(controlPlatform->geometry().right() + 20, q->geometry().bottom() - targetSize.height());
+
+            QPropertyAnimation *anim = new QPropertyAnimation(previewPort, "geometry");
+            q->connect(anim, &QPropertyAnimation::finished, q, [this, close, anim](){
+                anim->deleteLater();
+
+                QTimer::singleShot(1000* 5, q, close);
+            });
+            anim->setDuration(300);
+            anim->setStartValue(previewPort->geometry());
+            anim->setEndValue(QRect(targetPoint,targetSize));
+            anim->start();
+        };
+
+
+        previewPort->connect(previewPort, &Preview::closeButtonClicked, q, close);
+        previewPort->connect(previewPort, &Preview::minButtonClicked, q, showMin);
+        previewPort->connect(previewPort, &Preview::doubleClicked, q, [this](){
+            if(previewPort->isMaxMode())
+            {
+                return;
+            }
+
+            QSize targetSize = previewPort->getMaxModeSize();
+            QPoint targetPoint(q->geometry().x() + (q->geometry().width() - targetSize.width()) / 2, q->geometry().y() + (q->geometry().height() - targetSize.height()) / 2);
 
             QPropertyAnimation *anim = new QPropertyAnimation(previewPort, "geometry");
             q->connect(anim, &QPropertyAnimation::finished, q, [anim](){
@@ -98,9 +134,11 @@ BoardPrivate::BoardPrivate(Board* _q)
             });
             anim->setDuration(300);
             anim->setStartValue(previewPort->geometry());
-            anim->setEndValue(QRect(/*previewPort->mapFromGlobal(*/targetPoint/*)*/,targetSize));
+            anim->setEndValue(QRect(targetPoint,targetSize));
             anim->start();
         });
+
+        QTimer::singleShot(300, q, showMin);
     });
 
 
@@ -110,7 +148,7 @@ BoardPrivate::BoardPrivate(Board* _q)
 
     backgroundCanvas.fill(controlPlatform->backgroundColor());
     boradCanvas.fill(Qt::transparent);
-    boradCanvas.fill(Qt::transparent);
+    foregroundCanvas.fill(Qt::transparent);
 }
 
 BoardPrivate::~BoardPrivate()

@@ -31,6 +31,7 @@ add_executable(DrawingBoard
     README.md
     drawerprivate.h
     preview.h preview.cpp
+    tools.h tools.cpp
 )
 
 target_link_libraries(DrawingBoard PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
