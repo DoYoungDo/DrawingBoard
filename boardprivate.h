@@ -18,13 +18,12 @@ public:
         NONE = 0,
         SHOW_BACKGROUND = 1 << 0,
         SHOW_FOREGTOUND = 1 << 1,
+
+        READY_TO_DRAW = SHOW_BACKGROUND | SHOW_FOREGTOUND,
+
         SHOW_CONTROL= 1 << 2,
 
-        READY_TO_DRAW = SHOW_BACKGROUND | SHOW_FOREGTOUND | SHOW_CONTROL,
-
-        CONTROL_VISIBLE_SWITCHING = 1 << 3,
-
-        INIT = READY_TO_DRAW
+        INIT = READY_TO_DRAW | SHOW_CONTROL
     };
 private:
     BoardPrivate(Board* _q);
@@ -39,8 +38,6 @@ public:
     void restoreState();
     void setState(State s);
 
-    bool tryShowDrawer();
-    bool tryHideDrawer();
     bool showOrHideDrawer(QPoint p);
 
 

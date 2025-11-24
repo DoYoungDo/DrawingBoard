@@ -172,69 +172,57 @@ void BoardPrivate::setState(State s)
     state = s;
     // qDebug() << "current state" << s;
     q->update();
-
-    tryShowDrawer() || tryHideDrawer();
-}
-
-bool BoardPrivate::tryShowDrawer()
-{
-    if(controlPlatform->isVisible() || !(state & State::SHOW_CONTROL) || !!(state & State::CONTROL_VISIBLE_SWITCHING))
-    {
-        return false;
-    }
-    else
-    {
-        auto cRect = q->rect();
-        controlPlatform->show();
-        setState((State)(state | State::CONTROL_VISIBLE_SWITCHING));
-        QPropertyAnimation *anim = new QPropertyAnimation(controlPlatform, "pos", q);
-        q->connect(anim, &QPropertyAnimation::finished, q, [this, anim](){
-            setState((State)(state | ~State::CONTROL_VISIBLE_SWITCHING));
-            anim->deleteLater();
-        });
-        anim->setDuration(80);
-        anim->setStartValue(QPoint(cRect.center().x() - controlPlatform->rect().width() / 2, cRect.bottom()));
-        anim->setEndValue(QPoint(cRect.center().x() - controlPlatform->rect().width() / 2, cRect.bottom() - controlPlatform->rect().height()));
-        anim->start();
-    }
-    return true;
-}
-
-bool BoardPrivate::tryHideDrawer()
-{
-    if(!controlPlatform->isVisible() || !!(state & State::SHOW_CONTROL) || !!(state & State::CONTROL_VISIBLE_SWITCHING))
-    {
-        return false;
-    }
-    else
-    {
-        auto cRect = q->rect();
-        setState((State)(state | State::CONTROL_VISIBLE_SWITCHING));
-        QPropertyAnimation *anim = new QPropertyAnimation(controlPlatform, "pos", q);
-        q->connect(anim, &QPropertyAnimation::finished, q, [this, anim](){
-            controlPlatform->hide();
-            setState((State)(state | ~State::CONTROL_VISIBLE_SWITCHING));
-            anim->deleteLater();
-        });
-        anim->setDuration(80);
-        anim->setStartValue(QPoint(cRect.center().x() - controlPlatform->rect().width() / 2, cRect.bottom() - controlPlatform->rect().height()));
-        anim->setEndValue(QPoint(cRect.center().x() - controlPlatform->rect().width() / 2, cRect.bottom()));
-        anim->start();
-    }
-    return true;
 }
 
 bool BoardPrivate::showOrHideDrawer(QPoint p)
 {
+    static bool hideStatus = true;
+
     auto cRect = q->rect();
     if(p.y() > cRect.center().y())
     {
-        return tryShowDrawer();
+        if(controlPlatform->isVisible() || !(state & State::SHOW_CONTROL))
+        {
+            return false;
+        }
+        else
+        {
+            controlPlatform->show();
+            QPropertyAnimation *anim = new QPropertyAnimation(controlPlatform, "pos", q);
+            q->connect(anim, &QPropertyAnimation::finished, q, [anim](){
+                anim->deleteLater();
+            });
+            anim->setDuration(80);
+            anim->setStartValue(QPoint(cRect.center().x() - controlPlatform->rect().width() / 2, cRect.bottom()));
+            anim->setEndValue(QPoint(cRect.center().x() - controlPlatform->rect().width() / 2, cRect.bottom() - controlPlatform->rect().height()));
+            anim->start();
+        }
+
+        hideStatus = false;
     }
     else
     {
-        return tryHideDrawer();
+        if(!controlPlatform->isVisible() || hideStatus)
+        {
+            hideStatus = true;
+            return false;
+        }
+        else
+        {
+
+            hideStatus = true;
+            QPropertyAnimation *anim = new QPropertyAnimation(controlPlatform, "pos", q);
+            q->connect(anim, &QPropertyAnimation::finished, q, [this, anim](){
+                controlPlatform->hide();
+                anim->deleteLater();
+            });
+            anim->setDuration(80);
+            anim->setStartValue(QPoint(cRect.center().x() - controlPlatform->rect().width() / 2, cRect.bottom() - controlPlatform->rect().height()));
+            anim->setEndValue(QPoint(cRect.center().x() - controlPlatform->rect().width() / 2, cRect.bottom()));
+            anim->start();
+        }
     }
+    return true;
 }
 
 
@@ -245,7 +233,6 @@ Board::Board(QWidget *parent, Qt::WindowFlags f)
 
     this->setAttribute(Qt::WA_OpaquePaintEvent);
     this->setAttribute(Qt::WA_NoSystemBackground);
-    this->setAttribute(Qt::WA_MacShowFocusRect, false);
     this->setAutoFillBackground(false);
 
     this->setMouseTracking(true);
