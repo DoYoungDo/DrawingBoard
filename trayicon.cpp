@@ -34,30 +34,6 @@ TrayIcon::TrayIcon(QObject *parent)
         pBoard->showMaximized();
         pBoard->raise();
     });
-    menu->addAction("Save", QKeySequence::Save, [this](){
-        if(!pBoard)
-        {
-            return;
-        }
-
-        if(pPreview)
-        {
-            pPreview->deleteLater();
-            pPreview = nullptr;
-        }
-
-        pPreview = new Preview(pBoard->save());
-        pPreview->setWindowFlags(Qt::WindowStaysOnTopHint);
-        pPreview->resize(pBoard->size());
-        pPreview->show();
-        QTimer::singleShot(500,[this](){
-            QPropertyAnimation *anim = new QPropertyAnimation(pPreview, "geometry", this);
-            anim->setDuration(400);
-            anim->setStartValue(pPreview->geometry());
-            anim->setEndValue(QRect(pBoard->rect().bottomRight()- QPoint(100, 80), QSize(100, 80)));
-            anim->start();
-        });
-    });
 
     menu->addSeparator();
     menu->addAction("退出", QKeySequence::Quit, [](){

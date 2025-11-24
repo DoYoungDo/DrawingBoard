@@ -131,7 +131,7 @@ private:
 
 DrawerPrivate::DrawerPrivate()
 {
-    backgroundColor = QColor(0,0,0,1);
+    backgroundColor = QColor(0,0,0,255 * 0.1);
 }
 
 void DrawerPrivate::addShowOrHide(std::function<void (std::function<void ()>, bool)> showOrHide)
