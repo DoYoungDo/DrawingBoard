@@ -1,3 +1,45 @@
+## Dir Structure
+
+```
+└─DrawingBoard/
+  ├─CMakeLists.txt
+  ├─README.md
+  ├─board.cpp
+  ├─board.h
+  ├─boardprivate.h
+  ├─components/
+  │  ├─CMakeLists.txt
+  │  ├─capabilitybutton.cpp
+  │  └─capabilitybutton.h
+  ├─drawer.cpp
+  ├─drawer.h
+  ├─drawerprivate.h
+  ├─main.cpp
+  ├─pen.cpp
+  ├─pen.h
+  ├─preview.cpp
+  ├─preview.h
+  ├─res/
+  │  ├─icons/
+  │  │  ├─arraw_ collapse.png
+  │  │  ├─arraw_expand.png
+  │  │  ├─arrow-Down.png
+  │  │  ├─close.png
+  │  │  └─down.png
+  │  └─pens/
+  │    ├─eraser.png
+  │    ├─eraser_static.png
+  │    ├─pen_default.png
+  │    ├─pen_default_static.png
+  │    ├─pen_pencil.png
+  │    └─pen_pencil_static.png
+  ├─res.qrc
+  ├─tools.cpp
+  ├─tools.h
+  ├─trayicon.cpp
+  └─trayicon.h
+```
+
 ## Feature
 
 - [x] 画笔透明度
