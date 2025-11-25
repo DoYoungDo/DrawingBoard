@@ -25,7 +25,7 @@ void Preview::paintEvent(QPaintEvent* event)
 
     p.save();
     p.setBrush(Qt::gray);
-    p.drawRect(this->rect());
+    p.drawRoundedRect(this->rect(),5,5);
     p.restore();
 
     p.drawPixmap(this->rect(), pix);

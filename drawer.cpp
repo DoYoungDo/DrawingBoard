@@ -2,6 +2,7 @@
 #include "drawer.h"
 #include "dbapplication.h"
 #include "tools.h"
+#include "config.h"
 
 #include <capabilitybutton.h>
 
@@ -121,7 +122,11 @@ private:
 
 DrawerPrivate::DrawerPrivate()
 {
-    backgroundColor = QColor(0,0,0,255 * 0.1);
+    ConfigHandle* handle = static_cast<DBApplication*>(qApp)->getSingleton<Config>()->getConfigHandle(Config::INTERNAL);
+    Q_ASSERT(handle);
+
+    backgroundColor = QColor(handle->getString("color.backgroud"));
+    backgroundColor.setAlpha(handle->getInt("color.backgroud.opacity"));
 }
 
 void DrawerPrivate::addShowOrHide(std::function<void (std::function<void ()>, bool)> showOrHide)
@@ -286,15 +291,20 @@ QBoxLayout* Drawer::setupPenUi()
 
 QBoxLayout* Drawer::setupSliderUi()
 {
-    QLabel * backgroundAlphaValueLabel = new QLabel(QString::number(1));
+    ConfigHandle* handle = static_cast<DBApplication*>(qApp)->getSingleton<Config>()->getConfigHandle(Config::INTERNAL);
+    Q_ASSERT(handle);
+
+    QLabel * backgroundAlphaValueLabel = new QLabel(QString::number(handle->getInt("color.backgroud.opacity")));
     backgroundAlphaValueLabel->setAlignment(Qt::AlignCenter);
     QSlider* backgroundAlphaSlider = new QSlider(Qt::Vertical, this);
     backgroundAlphaSlider->setToolTip("background");
     backgroundAlphaSlider->setRange(1,10);
-    backgroundAlphaSlider->setValue(1);
+    backgroundAlphaSlider->setValue(handle->getInt("color.backgroud.opacity"));
     backgroundAlphaSlider->setPageStep(1);
     backgroundAlphaSlider->setSingleStep(1);
-    connect(backgroundAlphaSlider,&QSlider::valueChanged, this, [this, backgroundAlphaValueLabel](int value){
+    connect(backgroundAlphaSlider,&QSlider::valueChanged, this, [this, handle, backgroundAlphaValueLabel](int value){
+        handle->setValue("color.backgroud.opacity", value);
+
         backgroundAlphaValueLabel->setText(QString::number(value));
 
         int alpha = 255 * value /10;
@@ -305,34 +315,40 @@ QBoxLayout* Drawer::setupSliderUi()
     backgroundAlphaSliderGroupLayout->addWidget(backgroundAlphaSlider, 1);
     backgroundAlphaSliderGroupLayout->addWidget(backgroundAlphaValueLabel, 0);
 
-    QLabel * penSizeValueLabel = new QLabel(QString::number(1));
+    QLabel * penSizeValueLabel = new QLabel(QString::number(handle->getInt("size.pen")));
     penSizeValueLabel->setAlignment(Qt::AlignCenter);
     QSlider* penSizeSlider = new QSlider(Qt::Vertical, this);
     penSizeSlider->setToolTip("pen size");
     penSizeSlider->setRange(1,100);
-    penSizeSlider->setValue(1);
+    penSizeSlider->setValue(handle->getInt("size.pen"));
     penSizeSlider->setPageStep(10);
     penSizeSlider->setSingleStep(10);
-    connect(penSizeSlider,&QSlider::valueChanged, this, [this, penSizeValueLabel](int value){
+    connect(penSizeSlider,&QSlider::valueChanged, this, [this, handle, penSizeValueLabel](int value){
+        handle->setValue("size.pen", value);
+
         foreachPen([=](Pen* pen){
             pen->setWidth(value);
         });
         penSizeValueLabel->setText(QString::number(value));
         emit penSizeChanged(value);
     });
+    foreachPen([=](Pen* pen){
+        pen->setWidth(handle->getInt("size.pen"));
+    });
     QBoxLayout* penSizeSliderGroupLayout = createLayout(Qt::Vertical,0, QMargins(10,0,10,0));
     penSizeSliderGroupLayout->addWidget(penSizeSlider, 1);
     penSizeSliderGroupLayout->addWidget(penSizeValueLabel, 0);
 
-    QLabel * penAlphaValueLabel = new QLabel(QString::number(1));
+    QLabel * penAlphaValueLabel = new QLabel(QString::number(handle->getInt("color.pen.opacity")));
     penAlphaValueLabel->setAlignment(Qt::AlignCenter);
     QSlider* penAlphaSlider = new QSlider(Qt::Vertical, this);
     penAlphaSlider->setToolTip("pen size");
     penAlphaSlider->setRange(1,255);
-    penAlphaSlider->setValue(255);
+    penAlphaSlider->setValue(handle->getInt("color.pen.opacity"));
     penAlphaSlider->setPageStep(10);
     penAlphaSlider->setSingleStep(10);
-    connect(penAlphaSlider,&QSlider::valueChanged, this, [this, penAlphaValueLabel](int value){
+    connect(penAlphaSlider,&QSlider::valueChanged, this, [this, handle, penAlphaValueLabel](int value){
+        handle->setValue("color.pen.opacity", value);
         foreachPen([=](Pen* pen){
             QColor c = pen->color();
             c.setAlpha(value);
@@ -461,7 +477,6 @@ QBoxLayout* Drawer::setupCapabilityButtonUi()
     undoButton->setFixedSize(32,32);
     connect(undoButton, &CapabilityButton::clicked, this, [this](){
         QUndoStack* stack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
-        qDebug() << stack;
         if(stack)
         {
             stack->undo();
@@ -475,7 +490,6 @@ QBoxLayout* Drawer::setupCapabilityButtonUi()
     redoButton->setFixedSize(32,32);
     connect(redoButton, &CapabilityButton::clicked, this, [this](){
         QUndoStack* stack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
-        qDebug() << stack;
         if(stack)
         {
             stack->redo();

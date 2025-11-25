@@ -25,6 +25,8 @@ set(PROJECT_SOURCES
     pen.h pen.cpp
     preview.h preview.cpp
     tools.h tools.cpp
+    dbapplication.h dbapplication.cpp
+    config.h config.cpp
 )
 
 add_executable(DrawingBoard
@@ -32,7 +34,6 @@ add_executable(DrawingBoard
     res.qrc
     main.cpp
     README.md
-    dbapplication.h dbapplication.cpp
 )
 
 target_link_libraries(DrawingBoard PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)

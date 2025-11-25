@@ -92,7 +92,7 @@ BoardPrivate::BoardPrivate(Board* _q)
 
         previewPort = new Preview(pic, q);
         previewPort->setMaxModeSize(q->size());
-        previewPort->setMinModeSize(QSize(controlPlatform->width(),controlPlatform->width()));
+        previewPort->setMinModeSize(QSize(controlPlatform->width() / 2,controlPlatform->width() / 2));
         previewPort->showMax();
 
         auto close = [this](bool forceClose = false){
@@ -330,8 +330,24 @@ bool Board::eventFilter(QObject* watched, QEvent* event)
             // p.setBrush(Qt::transparent);
             // p.drawRect(d->boradCanvas.rect());
 
-            d->boradCanvas.fill(Qt::transparent);
-            this->update();
+            auto redo = [=](){
+                d->boradCanvas.fill(Qt::transparent);
+                this->update();
+            };
+
+            QUndoStack* stack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
+            if(stack)
+            {
+                QPixmap boradCanvas = d->boradCanvas;
+                QUndoCommand* undoCommand = TOOLS::createUndoRedoCommand([this, boradCanvas](){
+                    d->boradCanvas = boradCanvas;
+                    this->update();
+                }, redo);
+
+                stack->push(undoCommand);
+            }
+
+            redo();
         }
     }
 
