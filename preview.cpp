@@ -3,6 +3,7 @@
 
 #include <capabilitybutton.h>
 
+#include <QBoxLayout>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPushButton>

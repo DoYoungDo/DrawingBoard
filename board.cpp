@@ -2,6 +2,8 @@
 #include "board.h"
 #include "drawer.h"
 #include "preview.h"
+#include "tools.h"
+#include "dbapplication.h"
 
 #include <QPainter>
 #include <QPropertyAnimation>
@@ -12,6 +14,7 @@
 #include <QPen>
 #include <QPixmapCache>
 #include <QDateTime>
+#include <QUndoStack>
 
 BoardPrivate::BoardPrivate(Board* _q)
     :q(_q)
@@ -321,6 +324,12 @@ bool Board::eventFilter(QObject* watched, QEvent* event)
         }
         else if(event->type() == QEvent::MouseButtonDblClick)
         {
+            // QPainter p(&d->boradCanvas);
+            // p.setCompositionMode(QPainter::CompositionMode_Clear);
+            // p.setPen(Qt::transparent);
+            // p.setBrush(Qt::transparent);
+            // p.drawRect(d->boradCanvas.rect());
+
             d->boradCanvas.fill(Qt::transparent);
             this->update();
         }
@@ -390,8 +399,13 @@ void Board::mousePressEvent(QMouseEvent* event)
 {
     if(event->button() == Qt::LeftButton)
     {
-        d->mouseIsPress = true;
+        QPixmap boradCanvas = d->boradCanvas;
+        d->lastUndo = [this, boradCanvas](){
+            d->boradCanvas = boradCanvas;
+            this->update();
+        };
 
+        d->mouseIsPress = true;
         if(d->state & BoardPrivate::READY_TO_DRAW)
         {
             d->controlPlatform->hide();
@@ -407,6 +421,18 @@ void Board::mouseReleaseEvent(QMouseEvent* event)
 {
     if(event->button() == Qt::LeftButton)
     {
+        QUndoStack* stack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
+        if(stack)
+        {
+            QPixmap boradCanvas = d->boradCanvas;
+            QUndoCommand* undoCommand = TOOLS::createUndoRedoCommand(d->lastUndo, [this, boradCanvas](){
+                d->boradCanvas = boradCanvas;
+                this->update();
+            });
+
+            stack->push(undoCommand);
+        }
+
         d->mouseIsPress = false;
         d->showOrHideDrawer(event->pos());
     }
@@ -455,6 +481,18 @@ void Board::drawLine(QPoint lastMousePos, QPoint mousePos)
 {
     if(d->state & BoardPrivate::READY_TO_DRAW)
     {
+        // QUndoStack* stack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
+        // if(stack)
+        // {
+        //     QPixmap boradCanvas = d->boradCanvas;
+        //     QUndoCommand* undoCommand = TOOLS::createUndoRedoCommand([this, boradCanvas](){
+        //         d->boradCanvas = boradCanvas;
+        //         this->update();
+        //     },nullptr);
+
+        //     stack->push(undoCommand);
+        // }
+
         const Pen* pen = d->controlPlatform->currentPen();
 
         QPainter painter(&d->boradCanvas);

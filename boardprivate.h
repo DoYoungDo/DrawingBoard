@@ -58,6 +58,8 @@ public:
     QRect savedControlPlatformGeometry;
 
     Preview* previewPort = nullptr;
+
+    std::function<void(void)> lastUndo = nullptr;
 };
 
 #endif // BOARDPRIVATE_H
