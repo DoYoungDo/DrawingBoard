@@ -100,10 +100,10 @@ void CapabilityButton::paintEvent(QPaintEvent* event)
 class InternalPen : public Pen
 {
 public:
-    InternalPen(const QString& name, const QString& shapeFile, const QString& staticShapeFile,
+    InternalPen(const QString& name, const QString& shapeFile, const QString& staticShapeFile, bool isEraser = false,
                const QBrush &brush = Qt::SolidPattern, qreal width = 1, Qt::PenStyle s = Qt::SolidLine,Qt::PenCapStyle c = Qt::RoundCap, Qt::PenJoinStyle j = Qt::RoundJoin)
         :Pen(brush, width, s, c, j)
-        ,penName(name),penShapeFile(shapeFile),penStaticShapeFile(staticShapeFile)
+        ,penName(name),penShapeFile(shapeFile),penStaticShapeFile(staticShapeFile), isEr(isEraser)
     {}
     InternalPen(const InternalPen& pen)
         :Pen(pen)
@@ -122,10 +122,15 @@ public:
         return QPixmap(penStaticShapeFile);
     }
 
+    bool isEraser() const override{
+        return isEr;
+    }
+
 private:
     QString penName;
     QString penShapeFile;
     QString penStaticShapeFile;
+    bool isEr = false;
 };
 
 
@@ -153,8 +158,10 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     ,d(new DrawerPrivate)
 {
     pensContainer.clear();
-    pensContainer << new InternalPen("default",":/res/pens/pen_default.png",":/res/pens/pen_default_static.png")
-                  << new InternalPen("pencil",":/res/pens/pen_pencil.png",":/res/pens/pen_pencil_static.png",Qt::SolidPattern,1,Qt::SolidLine,Qt::SquareCap,Qt::RoundJoin);
+    pensContainer
+            // << new InternalPen("default",":/res/pens/pen_default.png",":/res/pens/pen_default_static.png")
+            << new InternalPen("pencil",":/res/pens/pen_pencil.png",":/res/pens/pen_pencil_static.png"/*, false ,Qt::SolidPattern,1,Qt::SolidLine,Qt::SquareCap,Qt::RoundJoin*/)
+            << new InternalPen("eraser",":/res/pens/eraser.png",":/res/pens/eraser_static.png", true);
     curPen = pensContainer.first();
 
     setupUi();
@@ -188,7 +195,7 @@ void Drawer::paintEvent(QPaintEvent* event)
 {
     Q_UNUSED(event);
     qint64 start =  QDateTime::currentMSecsSinceEpoch();
-    qDebug() << "drawer start" << start;
+    // qDebug() << "drawer start" << start;
 
     QPainter p(this);
     p.setOpacity(0.5);
@@ -199,7 +206,7 @@ void Drawer::paintEvent(QPaintEvent* event)
     p.drawRoundedRect(r,5,5);
 
 
-    qDebug() << "drawer spent" << QDateTime::currentMSecsSinceEpoch() - start;
+    // qDebug() << "drawer spent" << QDateTime::currentMSecsSinceEpoch() - start;
     // this->setMask(QRegion(r));
 }
 
@@ -272,6 +279,7 @@ QBoxLayout* Drawer::setupPenUi()
     penButtons.first()->setChecked(true);
 
     QBoxLayout* layout = createLayout(Qt::Horizontal, 10);
+    layout->addStretch();
     for(auto penBtn : penButtons){
         layout->addWidget(penBtn);
     }

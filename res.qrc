@@ -7,6 +7,8 @@
         <file>res/icons/arraw_ collapse.svg</file>
         <file>res/icons/arraw_expand.svg</file>
         <file>res/icons/down.svg</file>
+        <file>res/pens/eraser_static.png</file>
+        <file>res/pens/eraser.png</file>
     </qresource>
     <qresource prefix="/icon">
         <file>res/pens/pen_default.png</file>

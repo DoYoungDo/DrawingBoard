@@ -92,8 +92,9 @@ BoardPrivate::BoardPrivate(Board* _q)
         previewPort->setMinModeSize(QSize(controlPlatform->width(),controlPlatform->width()));
         previewPort->showMax();
 
-        auto close = [this](){
-            if(previewPort && !previewPort->isMaxMode()){
+        auto close = [this](bool forceClose = false){
+            // qDebug() << "is max" << (previewPort && !previewPort->isMaxMode());
+            if(previewPort && (forceClose || !previewPort->isMaxMode())){
                 previewPort->close();
                 previewPort->deleteLater();
                 previewPort = nullptr;
@@ -108,7 +109,12 @@ BoardPrivate::BoardPrivate(Board* _q)
             q->connect(anim, &QPropertyAnimation::finished, q, [this, close, anim](){
                 anim->deleteLater();
 
-                QTimer::singleShot(1000* 5, q, close);
+                static QTimer * timer = new QTimer;
+                if(timer->isActive()){
+                    timer->stop();
+                }
+                timer->callOnTimeout(q, close);
+                timer->start(1000* 5);
             });
             anim->setDuration(300);
             anim->setStartValue(previewPort->geometry());
@@ -117,7 +123,7 @@ BoardPrivate::BoardPrivate(Board* _q)
         };
 
 
-        previewPort->connect(previewPort, &Preview::closeButtonClicked, q, close);
+        previewPort->connect(previewPort, &Preview::closeButtonClicked, q, [close](){close(true);});
         previewPort->connect(previewPort, &Preview::minButtonClicked, q, showMin);
         previewPort->connect(previewPort, &Preview::doubleClicked, q, [this](){
             if(previewPort->isMaxMode())
@@ -326,7 +332,7 @@ bool Board::eventFilter(QObject* watched, QEvent* event)
 void Board::paintEvent(QPaintEvent* event)
 {
     qint64 start =  QDateTime::currentMSecsSinceEpoch();
-    qDebug() << "start" << start;
+    // qDebug() << "start" << start;
     Q_UNUSED(event);
 
     QPainter p(this);
@@ -336,7 +342,7 @@ void Board::paintEvent(QPaintEvent* event)
     d->drawBoradImg(&p);
     d->drawForeGroundImg(&p);
 
-    qDebug() << "spent" << QDateTime::currentMSecsSinceEpoch() - start;
+    // qDebug() << "spent" << QDateTime::currentMSecsSinceEpoch() - start;
 }
 
 void Board::resizeEvent(QResizeEvent* event)
@@ -440,6 +446,7 @@ void Board::drawPoint(QPoint pointPos)
         QPainter p(&d->boradCanvas);
         p.setOpacity(qreal((qreal)pen->color().alpha() / (qreal)255));
         p.setPen(*pen);
+        p.setCompositionMode(pen->isEraser() ? QPainter::CompositionMode_Clear : p.compositionMode());
         p.drawPoint(pointPos);
     }
 }
@@ -454,6 +461,7 @@ void Board::drawLine(QPoint lastMousePos, QPoint mousePos)
         painter.setOpacity(qreal((qreal)pen->color().alpha() / (qreal)255));
         // 设置画笔属性
         painter.setPen(*d->controlPlatform->currentPen());
+        painter.setCompositionMode(pen->isEraser() ? QPainter::CompositionMode_Clear : painter.compositionMode());
         painter.drawLine(lastMousePos, mousePos);
     }
 }

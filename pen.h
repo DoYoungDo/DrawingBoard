@@ -17,6 +17,7 @@ public:
     virtual QString name() const = 0;
     virtual QPixmap shape() const = 0;
     virtual QPixmap staticShape() const = 0;
+    virtual bool isEraser() const = 0;
 };
 
 #endif // PEN_H
