@@ -459,7 +459,7 @@ QBoxLayout* Drawer::setupCapabilityButtonUi()
     CapabilityButton* undoButton = new CapabilityButton(iconUndo, this);
     undoButton->setIconSize(QSize(32,32));
     undoButton->setFixedSize(32,32);
-    connect(undoButton, &CapabilityButton::clicked, this, [this](bool checked){
+    connect(undoButton, &CapabilityButton::clicked, this, [this](){
         QUndoStack* stack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
         qDebug() << stack;
         if(stack)
@@ -473,8 +473,13 @@ QBoxLayout* Drawer::setupCapabilityButtonUi()
     CapabilityButton* redoButton = new CapabilityButton(iconRedo, this);
     redoButton->setIconSize(QSize(32,32));
     redoButton->setFixedSize(32,32);
-    connect(redoButton, &CapabilityButton::clicked, this, [this](bool checked){
-        // checked ? collapse() : expand();
+    connect(redoButton, &CapabilityButton::clicked, this, [this](){
+        QUndoStack* stack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
+        qDebug() << stack;
+        if(stack)
+        {
+            stack->redo();
+        }
     });
 
     QIcon icon;
