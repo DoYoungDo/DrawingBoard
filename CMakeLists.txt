@@ -12,29 +12,30 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
+add_subdirectory(components/)
+
+include_directories(BEFORE components)
+
 set(PROJECT_SOURCES
-
-
-
-)
-
-add_executable(DrawingBoard
-    ${PROJECT_SOURCES}
-    trayicon.h
-    board.h board.cpp
-    pen.h pen.cpp
-    drawer.h drawer.cpp
-    res.qrc
-    main.cpp
-    trayicon.cpp
+    trayicon.h trayicon.cpp
     boardprivate.h
-    README.md
+    board.h board.cpp
     drawerprivate.h
+    drawer.h drawer.cpp
+    pen.h pen.cpp
     preview.h preview.cpp
     tools.h tools.cpp
 )
 
+add_executable(DrawingBoard
+    ${PROJECT_SOURCES}
+    res.qrc
+    main.cpp
+    README.md
+)
+
 target_link_libraries(DrawingBoard PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(DrawingBoard PRIVATE Components)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

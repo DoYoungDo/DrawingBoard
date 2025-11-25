@@ -40,15 +40,6 @@ private:
     QColor color;
 };
 
-class CapabilityButton : public QPushButton
-{
-    Q_OBJECT
-public:
-    CapabilityButton(const QIcon& ic, QWidget *parent = nullptr);
-
-protected:
-    virtual void paintEvent(QPaintEvent* event) override;
-};
 
 class Drawer : public QWidget
 {

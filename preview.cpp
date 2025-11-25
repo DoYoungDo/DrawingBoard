@@ -1,6 +1,8 @@
 #include "preview.h"
 #include "tools.h"
 
+#include <capabilitybutton.h>
+
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPushButton>
@@ -112,13 +114,18 @@ void Preview::setupUi()
 
 QBoxLayout* Preview::setupToolButtonUi()
 {
-    QPushButton* minButton = new QPushButton("min");
-    connect(minButton, &QPushButton::clicked, this, &Preview::minButtonClicked);
-    QPushButton* closeButton = new QPushButton("close");
-    connect(closeButton, &QPushButton::clicked, this, &Preview::closeButtonClicked);
-    QBoxLayout* layout = TOOLS::createLayout(Qt::Horizontal);
+    CapabilityButton* minButton = new CapabilityButton(QIcon(":/res/icons/arrow-Down.png"), this);
+    minButton->setIconSize(QSize(32,32));
+    minButton->setFixedSize(QSize(32,32));
+    connect(minButton, &CapabilityButton::clicked, this, &Preview::minButtonClicked);
+    CapabilityButton* closeButton = new CapabilityButton(QIcon(":/res/icons/close.png"), this);
+    closeButton->setIconSize(QSize(32,32));
+    closeButton->setFixedSize(QSize(32,32));
+    connect(closeButton, &CapabilityButton::clicked, this, &Preview::closeButtonClicked);
+    QBoxLayout* layout = TOOLS::createLayout(Qt::Horizontal, 10, QMargins(0, 10, 0, 0));
     layout->addStretch();
     layout->addWidget(minButton);
     layout->addWidget(closeButton);
+    layout->addStretch();
     return layout;
 }

@@ -1,6 +1,8 @@
 #include "drawerprivate.h"
 #include "drawer.h"
 
+#include <capabilitybutton.h>
+
 #include <QButtonGroup>
 #include <QColorDialog>
 #include <QHBoxLayout>
@@ -74,26 +76,6 @@ void ColorButton::paintEvent(QPaintEvent* event)
 void ColorButton::mouseDoubleClickEvent(QMouseEvent* event)
 {
     emit doubleClicked();
-}
-
-
-CapabilityButton::CapabilityButton(const QIcon& ic, QWidget* parent)
-    :QPushButton(ic,QString(),parent)
-{}
-
-void CapabilityButton::paintEvent(QPaintEvent* event)
-{
-    QIcon ic = this->icon();
-    if(ic.isNull())
-    {
-        QPushButton::paintEvent(event);
-        return;
-    }
-
-    QPainter p(this);
-    p.setPen(Qt::transparent);
-    p.setBrush(Qt::transparent);
-    p.drawPixmap(this->rect(), ic.pixmap(this->iconSize(), (this->isCheckable() && this->isChecked()) ? QIcon::Selected : QIcon::Normal));
 }
 
 
@@ -470,19 +452,21 @@ QBoxLayout* Drawer::setupColorButtonUi()
 QBoxLayout* Drawer::setupCapabilityButtonUi()
 {
     QIcon icon;
-    icon.addFile(":/res/icons/arraw_ collapse.svg",QSize(30,30),QIcon::Normal);
-    icon.addFile(":/res/icons/arraw_expand.svg",QSize(30,30),QIcon::Selected);
+    icon.addFile(":/res/icons/arraw_ collapse.png",QSize(32,32),QIcon::Normal);
+    icon.addFile(":/res/icons/arraw_expand.png",QSize(32,32),QIcon::Selected);
     CapabilityButton* btn = new CapabilityButton(icon, this);
-    btn->setFixedSize(30,30);
+    btn->setIconSize(QSize(32,32));
+    btn->setFixedSize(32,32);
     btn->setCheckable(true);
     connect(btn, &CapabilityButton::clicked, this, [this](bool checked){
         checked ? collapse() : expand();
     });
 
     QIcon iconDown;
-    iconDown.addFile(":/res/icons/down.svg",QSize(30,30),QIcon::Normal);
+    iconDown.addFile(":/res/icons/down.png",QSize(32,32),QIcon::Normal);
     CapabilityButton* downButton = new CapabilityButton(iconDown, this);
-    downButton->setFixedSize(30,30);
+    downButton->setIconSize(QSize(32,32));
+    downButton->setFixedSize(32,32);
     downButton->setCheckable(false);
     connect(downButton, &CapabilityButton::clicked, this, &Drawer::downClicked);
 
