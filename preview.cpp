@@ -21,7 +21,7 @@ Preview::Preview(const QPixmap& pix, QWidget* parent)
     ConfigHandle* handle = app->getSingleton<Config>()->getConfigHandle(Config::INTERNAL);
     localFilePath = handle->getString("dir.download")
             + "/"
-            + app->applicationName() +  "-" + QDateTime::fromMSecsSinceEpoch(QDateTime::currentMSecsSinceEpoch()).toString("YYYY-MM-DD-hh-mm-ss") + ".png";
+            + app->applicationName() +  "-" + QDateTime::fromMSecsSinceEpoch(QDateTime::currentMSecsSinceEpoch()).toString("yyyy-MM-dd-hh-mm-ss") + ".png";
 
     setupUi();
 }
