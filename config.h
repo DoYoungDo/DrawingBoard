@@ -53,6 +53,9 @@ public:
     inline int getInt(const QString& id){return getValue(id).toInt();}
     inline double getDouble(const QString& id){return getValue(id).toDouble();}
     inline QString getString(const QString& id){return getValue(id).toString();}
+    inline QStringList getStringList(const QString& id){return getValue(id).toStringList();}
+    inline QVariantList getVariantList(const QString& id){return getValue(id).toList();}
+    inline QVariantMap getVariantMap(const QString& id){return getValue(id).toMap();}
 
 private:
     friend class Config;

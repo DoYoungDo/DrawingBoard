@@ -14,6 +14,9 @@ const char * DEFAULT_CONFIG = R"({
 "color.backgroud.opacity":1,
 "color.pen":"#000000",
 "color.pen.opacity":255,
+"color.palette":[
+"#000000","#ffffff","#ff0000","#ffff00","#00ff00","#0000ff"
+],
 "size.pen":1,
 "dir.download":"%dir.download%"
 })";

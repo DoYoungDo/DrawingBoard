@@ -398,6 +398,9 @@ QBoxLayout* Drawer::setupSliderUi()
 
 QBoxLayout* Drawer::setupColorButtonUi()
 {
+    ConfigHandle* handle = static_cast<DBApplication*>(qApp)->getSingleton<Config>()->getConfigHandle(Config::INTERNAL);
+    Q_ASSERT(handle);
+
     QRadioButton* backgroundRadioBtn = new QRadioButton("background",this);
     backgroundRadioBtn->setCheckable(true);
     QRadioButton* penRadioBtn = new QRadioButton("pen",this);
@@ -412,9 +415,7 @@ QBoxLayout* Drawer::setupColorButtonUi()
     radioButtonLayout->addWidget(backgroundRadioBtn);
     radioButtonLayout->addWidget(penRadioBtn);
 
-    auto onColorChanged = [this, radioButtonGroup](const QColor& c){
-        ConfigHandle* handle = static_cast<DBApplication*>(qApp)->getSingleton<Config>()->getConfigHandle(Config::INTERNAL);
-        Q_ASSERT(handle);
+    auto onColorChanged = [this,handle, radioButtonGroup](const QColor& c){
 
         if(radioButtonGroup->checkedId() == 0){
             handle->setValue("color.backgroud", c.name());
@@ -432,32 +433,26 @@ QBoxLayout* Drawer::setupColorButtonUi()
         }
     };
 
-    ColorButton* defaultColorBottonBL = createColorButton(Qt::black,onColorChanged);
-    defaultColorBottonBL->setChecked(true);
-    ColorButton* defaultColorBottonW = createColorButton(Qt::white,onColorChanged);
-    ColorButton* defaultColorBottonR = createColorButton(Qt::red,onColorChanged);
-    ColorButton* defaultColorBottonY = createColorButton(Qt::yellow,onColorChanged);
-    ColorButton* defaultColorBottonG = createColorButton(Qt::green,onColorChanged);
-    ColorButton* defaultColorBottonB = createColorButton(Qt::blue,onColorChanged);
-
-    QBoxLayout* colorButtonLayout = createLayout(Qt::Horizontal, 10);
-    colorButtonLayout->addWidget(defaultColorBottonBL);
-    colorButtonLayout->addWidget(defaultColorBottonW);
-    colorButtonLayout->addWidget(defaultColorBottonR);
-    colorButtonLayout->addWidget(defaultColorBottonY);
-    colorButtonLayout->addWidget(defaultColorBottonG);
-    colorButtonLayout->addWidget(defaultColorBottonB);
-    colorButtonLayout->addStretch();
-
-
     QButtonGroup* colorButtonGroup = new QButtonGroup(this);
     colorButtonGroup->setExclusive(true);
-    colorButtonGroup->addButton(defaultColorBottonBL);
-    colorButtonGroup->addButton(defaultColorBottonW);
-    colorButtonGroup->addButton(defaultColorBottonR);
-    colorButtonGroup->addButton(defaultColorBottonY);
-    colorButtonGroup->addButton(defaultColorBottonG);
-    colorButtonGroup->addButton(defaultColorBottonB);
+
+    QBoxLayout* colorButtonLayout = createLayout(Qt::Horizontal, 10);
+
+    QString penColor = handle->getString("color.pen");
+    QStringList colors = handle->getStringList("color.palette");
+    for(const QString& c : colors)
+    {
+        ColorButton* colorButton = createColorButton(c,onColorChanged);
+        if(penColor == c)
+        {
+            colorButton->setChecked(true);
+        }
+
+        colorButtonGroup->addButton(colorButton);
+        colorButtonLayout->addWidget(colorButton);
+    }
+
+    colorButtonLayout->addStretch();
 
     QBoxLayout* colorLayout = createLayout(Qt::Vertical, 10);
     colorLayout->addLayout(radioButtonLayout);
