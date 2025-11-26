@@ -415,7 +415,20 @@ QBoxLayout* Drawer::setupColorButtonUi()
     radioButtonLayout->addWidget(backgroundRadioBtn);
     radioButtonLayout->addWidget(penRadioBtn);
 
-    auto onColorChanged = [this,handle, radioButtonGroup](const QColor& c){
+
+    QButtonGroup* colorButtonGroup = new QButtonGroup(this);
+    colorButtonGroup->setExclusive(true);
+
+    QBoxLayout* colorButtonLayout = createLayout(Qt::Horizontal, 10);
+
+    auto onColorChanged = [this,handle, radioButtonGroup, colorButtonGroup](const QColor& c){
+        QStringList colors;
+        for(auto btn : colorButtonGroup->buttons())
+        {
+            colors << static_cast<ColorButton*>(btn)->getColor().name();
+        }
+        // qDebug() << "colors " << colors;
+        handle->setValue("color.palette", colors);
 
         if(radioButtonGroup->checkedId() == 0){
             handle->setValue("color.backgroud", c.name());
@@ -432,11 +445,6 @@ QBoxLayout* Drawer::setupColorButtonUi()
             emit penColorChanged(c);
         }
     };
-
-    QButtonGroup* colorButtonGroup = new QButtonGroup(this);
-    colorButtonGroup->setExclusive(true);
-
-    QBoxLayout* colorButtonLayout = createLayout(Qt::Horizontal, 10);
 
     QString penColor = handle->getString("color.pen");
     QStringList colors = handle->getStringList("color.palette");
