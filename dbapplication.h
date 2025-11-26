@@ -33,6 +33,9 @@ public:
         return true;
     }
 
+
+    QString applicationDataDir(bool mk = false);
+
 private:
     QMap<QString, void *> singletons;
 };

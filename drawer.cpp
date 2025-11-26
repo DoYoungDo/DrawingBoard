@@ -126,7 +126,8 @@ DrawerPrivate::DrawerPrivate()
     Q_ASSERT(handle);
 
     backgroundColor = QColor(handle->getString("color.backgroud"));
-    backgroundColor.setAlpha(handle->getInt("color.backgroud.opacity"));
+    int o =handle->getInt("color.backgroud.opacity");
+    backgroundColor.setAlpha(o == 1 ? 0 : 255*o/10);
 }
 
 void DrawerPrivate::addShowOrHide(std::function<void (std::function<void ()>, bool)> showOrHide)
@@ -307,7 +308,7 @@ QBoxLayout* Drawer::setupSliderUi()
 
         backgroundAlphaValueLabel->setText(QString::number(value));
 
-        int alpha = 255 * value /10;
+        int alpha = value == 1 ? value : 255 * value /10;
         d->backgroundColor.setAlpha(alpha);
         emit backgroundOpacityChanged(d->backgroundColor);
     });

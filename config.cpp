@@ -16,19 +16,16 @@ const char * DEFAULT_CONFIG = R"({
 "color.pen.opacity":255,
 "size.pen":1
 })";
+
+DBApplication* app = static_cast<DBApplication*>(qApp);
 }
 
 Config::Config(QObject *parent)
     : QObject{parent}
     ,internal(new ConfigHandle(INTERNAL, this))
     ,user(new ConfigHandle(USER, this))
-    ,settingFilePath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/setting.json")
+    ,settingFile(app->applicationDataDir(true) + "/setting.json")
 {
-    qDebug() << DBApplication::applicationDirPath() << "\n"
-             << QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) << "\n"
-             << QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation) << "\n"
-             << QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-
     QJsonParseError err;
     QJsonDocument doc = QJsonDocument::fromJson(DEFAULT_CONFIG, &err);
     Q_ASSERT(err.error == QJsonParseError::NoError);
@@ -36,16 +33,11 @@ Config::Config(QObject *parent)
 
     data = doc.object().toVariantMap();
 
-    QDir appLocal(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
-    if(!appLocal.exists())
-    {
-        appLocal.mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
-    }
 
-    if(settingFilePath.exists() && settingFilePath.open(QIODevice::ReadWrite))
+    if(settingFile.exists() && settingFile.open(QIODevice::ReadOnly))
     {
-        QByteArray content = settingFilePath.readAll();
-        doc = QJsonDocument::fromJson(DEFAULT_CONFIG, &err);
+        QByteArray content = settingFile.readAll();
+        doc = QJsonDocument::fromJson(content, &err);
         if(err.error == QJsonParseError::NoError && doc.isObject())
         {
             // replace default values
@@ -55,6 +47,7 @@ Config::Config(QObject *parent)
                 data.insert(key, localData.value(key));
             }
         }
+        settingFile.close();
     }
 
     timerId = startTimer(1000);
@@ -64,7 +57,7 @@ Config::~Config()
 {
     flush();
     data.clear();
-    settingFilePath.close();
+    settingFile.close();
 }
 
 void Config::timerEvent(QTimerEvent* event)
@@ -98,16 +91,19 @@ QVariant Config::getValue(const QString& id)
 
 void Config::flush()
 {
-    if(!settingFilePath.isOpen())
+    if(!settingFile.isOpen())
     {
-        if(!settingFilePath.open(QIODevice::ReadWrite))
+        if(!settingFile.open(QIODevice::WriteOnly | QIODevice::Text))
         {
-            qDebug() << "open setting file failed" << QDir(settingFilePath.fileName()).dirName();
+            qDebug() << "open setting file failed" << QDir(settingFile.fileName()).dirName();
 
             return;
         }
     }
 
-    settingFilePath.write(QJsonDocument(QJsonObject::fromVariantMap(data)).toJson());
+    QTextStream out(&settingFile);
+    out << QJsonDocument(QJsonObject::fromVariantMap(data)).toJson();
+
+    settingFile.close();
 }
 

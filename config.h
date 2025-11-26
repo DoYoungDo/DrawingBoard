@@ -35,7 +35,7 @@ private:
     QVariantMap data;
     bool isDirty = false;
     int timerId = -1;
-    QFile settingFilePath;
+    QFile settingFile;
 };
 
 class ConfigHandle : public QObject
