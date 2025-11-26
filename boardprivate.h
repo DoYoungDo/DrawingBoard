@@ -7,6 +7,7 @@
 
 class QPainter;
 class QPoint;
+class QUndoStack;
 
 class Board;
 class Drawer;
@@ -60,6 +61,7 @@ public:
     Preview* previewPort = nullptr;
 
     std::function<void(void)> lastUndo = nullptr;
+    QUndoStack* undoredoStack = nullptr;
 };
 
 #endif // BOARDPRIVATE_H

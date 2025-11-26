@@ -22,6 +22,8 @@ BoardPrivate::BoardPrivate(Board* _q)
     state = State::INIT;
     savaState();
 
+    undoredoStack = new QUndoStack(q);
+
     controlPlatform = new Drawer(q);
     controlPlatform->setVisible(false);
     // controlPlatform->resize(500,250);
@@ -54,6 +56,8 @@ BoardPrivate::BoardPrivate(Board* _q)
 
         q->update();
     });
+    controlPlatform->connect(controlPlatform, &Drawer::undoClicked, undoredoStack, &QUndoStack::undo);
+    controlPlatform->connect(controlPlatform, &Drawer::redoClicked, undoredoStack, &QUndoStack::redo);
     controlPlatform->connect(controlPlatform, &Drawer::collapsed, controlPlatform, [this](){
         savedControlPlatformGeometry = controlPlatform->geometry();
 
@@ -339,8 +343,7 @@ bool Board::eventFilter(QObject* watched, QEvent* event)
                 this->update();
             };
 
-            QUndoStack* stack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
-            if(stack)
+            if(d->undoredoStack)
             {
                 QPixmap boradCanvas = d->boradCanvas;
                 QUndoCommand* undoCommand = TOOLS::createUndoRedoCommand([this, boradCanvas](){
@@ -348,7 +351,7 @@ bool Board::eventFilter(QObject* watched, QEvent* event)
                     this->update();
                 }, redo);
 
-                stack->push(undoCommand);
+                d->undoredoStack->push(undoCommand);
             }
 
             redo();
@@ -441,8 +444,7 @@ void Board::mouseReleaseEvent(QMouseEvent* event)
 {
     if(event->button() == Qt::LeftButton)
     {
-        QUndoStack* stack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
-        if(stack)
+        if(d->undoredoStack)
         {
             QPixmap boradCanvas = d->boradCanvas;
             QUndoCommand* undoCommand = TOOLS::createUndoRedoCommand(d->lastUndo, [this, boradCanvas](){
@@ -450,7 +452,7 @@ void Board::mouseReleaseEvent(QMouseEvent* event)
                 this->update();
             });
 
-            stack->push(undoCommand);
+            d->undoredoStack->push(undoCommand);
         }
 
         d->mouseIsPress = false;

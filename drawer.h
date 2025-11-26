@@ -67,6 +67,8 @@ signals:
     void collapsed();
     void expanded();
     void downClicked();
+    void undoClicked();
+    void redoClicked();
 
 public slots:
     void collapse();

@@ -16,7 +16,6 @@
 #include <QSlider>
 #include <QBoxLayout>
 #include <QDateTime>
-#include <QUndoStack>
 
 
 PenButton::PenButton(Pen* p, QWidget* parent)
@@ -495,26 +494,14 @@ QBoxLayout* Drawer::setupCapabilityButtonUi()
     CapabilityButton* undoButton = new CapabilityButton(iconUndo, this);
     undoButton->setIconSize(QSize(32,32));
     undoButton->setFixedSize(32,32);
-    connect(undoButton, &CapabilityButton::clicked, this, [this](){
-        QUndoStack* stack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
-        if(stack)
-        {
-            stack->undo();
-        }
-    });
+    connect(undoButton, &CapabilityButton::clicked, this, &Drawer::undoClicked);
 
     QIcon iconRedo;
     iconRedo.addFile(":/res/icons/redo.png",QSize(32,32),QIcon::Normal);
     CapabilityButton* redoButton = new CapabilityButton(iconRedo, this);
     redoButton->setIconSize(QSize(32,32));
     redoButton->setFixedSize(32,32);
-    connect(redoButton, &CapabilityButton::clicked, this, [this](){
-        QUndoStack* stack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
-        if(stack)
-        {
-            stack->redo();
-        }
-    });
+    connect(redoButton, &CapabilityButton::clicked, this, &Drawer::redoClicked);
 
     QIcon icon;
     icon.addFile(":/res/icons/arraw_ collapse.png",QSize(32,32),QIcon::Normal);
