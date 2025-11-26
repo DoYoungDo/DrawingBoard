@@ -16,5 +16,6 @@
     </qresource>
     <qresource prefix="/icon">
         <file>res/pens/pen_default.png</file>
+        <file>res/icon.png</file>
     </qresource>
 </RCC>

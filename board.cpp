@@ -138,7 +138,8 @@ BoardPrivate::BoardPrivate(Board* _q)
             }
 
             QSize targetSize = previewPort->getMaxModeSize();
-            QPoint targetPoint(q->geometry().x() + (q->geometry().width() - targetSize.width()) / 2, q->geometry().y() + (q->geometry().height() - targetSize.height()) / 2);
+            // QPoint targetPoint(q->geometry().x() + (q->geometry().width() - targetSize.width()) / 2, q->geometry().y() + (q->geometry().height() - targetSize.height()) / 2);
+            QPoint targetPoint(q->geometry().topLeft());
 
             QPropertyAnimation *anim = new QPropertyAnimation(previewPort, "geometry");
             q->connect(anim, &QPropertyAnimation::finished, q, [anim](){

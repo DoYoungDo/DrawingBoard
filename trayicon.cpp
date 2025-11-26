@@ -13,7 +13,7 @@
 TrayIcon::TrayIcon(QObject *parent)
     : QSystemTrayIcon{parent}
 {
-    this->setIcon(QIcon(":/icon/res/pens/pen_default.png"));
+    this->setIcon(QIcon(":/icon/res/icon.png"));
     this->setToolTip("DrawingBoard");
 
     QMenu* menu = new QMenu;
