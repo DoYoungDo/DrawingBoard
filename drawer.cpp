@@ -156,6 +156,17 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
     curPen = pensContainer.first();
 
     setupUi();
+
+    ConfigHandle* handle = static_cast<DBApplication*>(qApp)->getSingleton<Config>()->getConfigHandle(Config::INTERNAL);
+    Q_ASSERT(handle);
+
+    foreachPen([=](Pen* pen){
+        pen->setWidth(handle->getInt("size.pen"));
+
+        QColor c(handle->getString("color.pen"));
+        c.setAlpha(handle->getInt("color.pen.opacity"));
+        pen->setColor(c);
+    });
 }
 
 Drawer::~Drawer()
@@ -333,9 +344,6 @@ QBoxLayout* Drawer::setupSliderUi()
         penSizeValueLabel->setText(QString::number(value));
         emit penSizeChanged(value);
     });
-    foreachPen([=](Pen* pen){
-        pen->setWidth(handle->getInt("size.pen"));
-    });
     QBoxLayout* penSizeSliderGroupLayout = createLayout(Qt::Vertical,0, QMargins(10,0,10,0));
     penSizeSliderGroupLayout->addWidget(penSizeSlider, 1);
     penSizeSliderGroupLayout->addWidget(penSizeValueLabel, 0);
@@ -350,6 +358,8 @@ QBoxLayout* Drawer::setupSliderUi()
     penAlphaSlider->setSingleStep(10);
     connect(penAlphaSlider,&QSlider::valueChanged, this, [this, handle, penAlphaValueLabel](int value){
         handle->setValue("color.pen.opacity", value);
+
+        penAlphaValueLabel->setText(QString::number(value));
         foreachPen([=](Pen* pen){
             QColor c = pen->color();
             c.setAlpha(value);
@@ -403,7 +413,12 @@ QBoxLayout* Drawer::setupColorButtonUi()
     radioButtonLayout->addWidget(penRadioBtn);
 
     auto onColorChanged = [this, radioButtonGroup](const QColor& c){
+        ConfigHandle* handle = static_cast<DBApplication*>(qApp)->getSingleton<Config>()->getConfigHandle(Config::INTERNAL);
+        Q_ASSERT(handle);
+
         if(radioButtonGroup->checkedId() == 0){
+            handle->setValue("color.backgroud", c.name());
+
             QColor cc = c;
             cc.setAlpha(d->backgroundColor.alpha());
             d->backgroundColor = cc;
@@ -412,6 +427,7 @@ QBoxLayout* Drawer::setupColorButtonUi()
         }
         else
         {
+            handle->setValue("color.pen", c.name());
             emit penColorChanged(c);
         }
     };
