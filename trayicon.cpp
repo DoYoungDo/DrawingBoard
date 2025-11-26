@@ -25,7 +25,11 @@ TrayIcon::TrayIcon(QObject *parent)
             return;
         }
 
+#ifdef Q_OS_WIN
+        pBoard = new Board(nullptr, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::SubWindow);
+#else
         pBoard = new Board(nullptr, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+#endif
         connect(pBoard, &Board::destroyed, this, [this](){pBoard = nullptr;});
 
         pBoard->setAttribute(Qt::WA_DeleteOnClose, true);
