@@ -116,17 +116,7 @@ bool Preview::isMaxMode(const QSize& s)
 
 void Preview::download()
 {
-    // pix.copy(pix.rect()).save(localFilePath);
-    QImage img = pix.toImage();
-    QImageWriter w(localFilePath);
-    w.write(img);
-    // QFile file(localFilePath);
-    // if(file.open(QIODevice::WriteOnly))
-    // {
-    //     pix.save(&file);
-
-    //     file.close();
-    // }
+    pix.save(localFilePath);
 }
 
 void Preview::setupUi()
@@ -134,22 +124,56 @@ void Preview::setupUi()
     QBoxLayout* layout = TOOLS::createLayout(Qt::Vertical);
     layout->addLayout(setupToolButtonUi());
     layout->addStretch();
+    layout->addLayout(setupToolButtonUi2());
     this->setLayout(layout);
 }
 
 QBoxLayout* Preview::setupToolButtonUi()
 {
     CapabilityButton* minButton = new CapabilityButton(QIcon(":/res/icons/arrow-Down.png"), this);
+    minButton->setProperty("maxButton",true);
     minButton->setIconSize(QSize(32,32));
     minButton->setFixedSize(QSize(32,32));
     connect(minButton, &CapabilityButton::clicked, this, &Preview::minButtonClicked);
+
+    CapabilityButton* downButton = new CapabilityButton(QIcon(":/res/icons/down.png"), this);
+    downButton->setProperty("maxButton",true);
+    downButton->setIconSize(QSize(32,32));
+    downButton->setFixedSize(QSize(32,32));
+    connect(downButton, &CapabilityButton::clicked, this, &Preview::download);
+
     CapabilityButton* closeButton = new CapabilityButton(QIcon(":/res/icons/close.png"), this);
+    closeButton->setProperty("maxButton",true);
     closeButton->setIconSize(QSize(32,32));
     closeButton->setFixedSize(QSize(32,32));
     connect(closeButton, &CapabilityButton::clicked, this, &Preview::closeButtonClicked);
+
     QBoxLayout* layout = TOOLS::createLayout(Qt::Horizontal, 10, QMargins(0, 10, 0, 0));
     layout->addStretch();
     layout->addWidget(minButton);
+    layout->addWidget(downButton);
+    layout->addWidget(closeButton);
+    layout->addStretch();
+    return layout;
+}
+
+QBoxLayout* Preview::setupToolButtonUi2()
+{
+    CapabilityButton* downButton = new CapabilityButton(QIcon(":/res/icons/down.png"), this);
+    downButton->setProperty("maxButton",false);
+    downButton->setIconSize(QSize(32,32));
+    downButton->setFixedSize(QSize(32,32));
+    connect(downButton, &CapabilityButton::clicked, this, &Preview::download);
+
+    CapabilityButton* closeButton = new CapabilityButton(QIcon(":/res/icons/close.png"), this);
+    closeButton->setProperty("maxButton",false);
+    closeButton->setIconSize(QSize(32,32));
+    closeButton->setFixedSize(QSize(32,32));
+    connect(closeButton, &CapabilityButton::clicked, this, &Preview::closeButtonClicked);
+
+    QBoxLayout* layout = TOOLS::createLayout(Qt::Horizontal, 10, QMargins(0, 10, 0, 0));
+    layout->addStretch();
+    layout->addWidget(downButton);
     layout->addWidget(closeButton);
     layout->addStretch();
     return layout;

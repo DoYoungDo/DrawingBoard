@@ -34,11 +34,13 @@ public:
     bool isMaxMode();
     bool isMaxMode(const QSize& s);
 
+public slots:
     void download();
 
 private:
     void setupUi();
     QBoxLayout* setupToolButtonUi();
+    QBoxLayout* setupToolButtonUi2();
 
 private:
     QPixmap pix;
