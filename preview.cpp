@@ -67,7 +67,14 @@ void Preview::resizeEvent(QResizeEvent* event)
     QList<QPushButton*> btns = this->findChildren<QPushButton*>();
     for(auto btn : std::as_const(btns))
     {
-        btn->setVisible(isMax);
+        if(isMax)
+        {
+            btn->setVisible(true);
+        }
+        else
+        {
+            btn->setVisible(btn->property("showMin").toBool());
+        }
     }
     QWidget::resizeEvent(event);
 }
@@ -122,28 +129,27 @@ void Preview::download()
 void Preview::setupUi()
 {
     QBoxLayout* layout = TOOLS::createLayout(Qt::Vertical);
-    layout->addLayout(setupToolButtonUi());
     layout->addStretch();
-    layout->addLayout(setupToolButtonUi2());
+    layout->addLayout(setupToolButtonUi());
     this->setLayout(layout);
 }
 
 QBoxLayout* Preview::setupToolButtonUi()
 {
     CapabilityButton* minButton = new CapabilityButton(QIcon(":/res/icons/arrow-Down.png"), this);
-    minButton->setProperty("maxButton",true);
+    minButton->setProperty("showMin",false);
     minButton->setIconSize(QSize(32,32));
     minButton->setFixedSize(QSize(32,32));
     connect(minButton, &CapabilityButton::clicked, this, &Preview::minButtonClicked);
 
     CapabilityButton* downButton = new CapabilityButton(QIcon(":/res/icons/down.png"), this);
-    downButton->setProperty("maxButton",true);
+    downButton->setProperty("showMin",true);
     downButton->setIconSize(QSize(32,32));
     downButton->setFixedSize(QSize(32,32));
     connect(downButton, &CapabilityButton::clicked, this, &Preview::download);
 
     CapabilityButton* closeButton = new CapabilityButton(QIcon(":/res/icons/close.png"), this);
-    closeButton->setProperty("maxButton",true);
+    closeButton->setProperty("showMin",true);
     closeButton->setIconSize(QSize(32,32));
     closeButton->setFixedSize(QSize(32,32));
     connect(closeButton, &CapabilityButton::clicked, this, &Preview::closeButtonClicked);
@@ -151,28 +157,6 @@ QBoxLayout* Preview::setupToolButtonUi()
     QBoxLayout* layout = TOOLS::createLayout(Qt::Horizontal, 10, QMargins(0, 10, 0, 0));
     layout->addStretch();
     layout->addWidget(minButton);
-    layout->addWidget(downButton);
-    layout->addWidget(closeButton);
-    layout->addStretch();
-    return layout;
-}
-
-QBoxLayout* Preview::setupToolButtonUi2()
-{
-    CapabilityButton* downButton = new CapabilityButton(QIcon(":/res/icons/down.png"), this);
-    downButton->setProperty("maxButton",false);
-    downButton->setIconSize(QSize(32,32));
-    downButton->setFixedSize(QSize(32,32));
-    connect(downButton, &CapabilityButton::clicked, this, &Preview::download);
-
-    CapabilityButton* closeButton = new CapabilityButton(QIcon(":/res/icons/close.png"), this);
-    closeButton->setProperty("maxButton",false);
-    closeButton->setIconSize(QSize(32,32));
-    closeButton->setFixedSize(QSize(32,32));
-    connect(closeButton, &CapabilityButton::clicked, this, &Preview::closeButtonClicked);
-
-    QBoxLayout* layout = TOOLS::createLayout(Qt::Horizontal, 10, QMargins(0, 10, 0, 0));
-    layout->addStretch();
     layout->addWidget(downButton);
     layout->addWidget(closeButton);
     layout->addStretch();

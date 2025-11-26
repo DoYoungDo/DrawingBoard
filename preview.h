@@ -40,7 +40,6 @@ public slots:
 private:
     void setupUi();
     QBoxLayout* setupToolButtonUi();
-    QBoxLayout* setupToolButtonUi2();
 
 private:
     QPixmap pix;
