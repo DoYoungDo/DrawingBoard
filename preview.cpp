@@ -1,18 +1,27 @@
 #include "preview.h"
 #include "tools.h"
+#include "config.h"
+#include "dbapplication.h"
 
 #include <capabilitybutton.h>
 
 #include <QBoxLayout>
+#include <QDateTime>
+#include <QImageWriter>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPushButton>
-
 
 Preview::Preview(const QPixmap& pix, QWidget* parent)
     : QWidget{parent}
 {
     this->pix = pix;
+
+    DBApplication* app = static_cast<DBApplication*>(qApp);
+    ConfigHandle* handle = app->getSingleton<Config>()->getConfigHandle(Config::INTERNAL);
+    localFilePath = handle->getString("dir.download")
+            + "/"
+            + app->applicationName() +  "-" + QDateTime::fromMSecsSinceEpoch(QDateTime::currentMSecsSinceEpoch()).toString("YYYY-MM-DD-hh-mm-ss") + ".png";
 
     setupUi();
 }
@@ -56,7 +65,7 @@ void Preview::resizeEvent(QResizeEvent* event)
 {
     bool isMax = isMaxMode(event->size());
     QList<QPushButton*> btns = this->findChildren<QPushButton*>();
-    for(auto btn : btns)
+    for(auto btn : std::as_const(btns))
     {
         btn->setVisible(isMax);
     }
@@ -103,6 +112,21 @@ bool Preview::isMaxMode()
 bool Preview::isMaxMode(const QSize& s)
 {
     return s.width() >= maxSize.width() && s.height() >= maxSize.height();
+}
+
+void Preview::download()
+{
+    // pix.copy(pix.rect()).save(localFilePath);
+    QImage img = pix.toImage();
+    QImageWriter w(localFilePath);
+    w.write(img);
+    // QFile file(localFilePath);
+    // if(file.open(QIODevice::WriteOnly))
+    // {
+    //     pix.save(&file);
+
+    //     file.close();
+    // }
 }
 
 void Preview::setupUi()

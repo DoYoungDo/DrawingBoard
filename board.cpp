@@ -113,10 +113,14 @@ BoardPrivate::BoardPrivate(Board* _q)
                 anim->deleteLater();
 
                 static QTimer * timer = new QTimer;
+                timer->setSingleShot(true);
                 if(timer->isActive()){
                     timer->stop();
                 }
-                timer->callOnTimeout(q, close);
+                timer->callOnTimeout(q, [this, close](){
+                    if(previewPort) previewPort->download();
+                    close();
+                });
                 timer->start(1000* 5);
             });
             anim->setDuration(300);
@@ -124,7 +128,6 @@ BoardPrivate::BoardPrivate(Board* _q)
             anim->setEndValue(QRect(targetPoint,targetSize));
             anim->start();
         };
-
 
         previewPort->connect(previewPort, &Preview::closeButtonClicked, q, [close](){close(true);});
         previewPort->connect(previewPort, &Preview::minButtonClicked, q, showMin);

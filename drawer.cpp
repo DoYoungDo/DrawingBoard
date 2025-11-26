@@ -127,7 +127,7 @@ DrawerPrivate::DrawerPrivate()
 
     backgroundColor = QColor(handle->getString("color.backgroud"));
     int o =handle->getInt("color.backgroud.opacity");
-    backgroundColor.setAlpha(o == 1 ? 0 : 255*o/10);
+    backgroundColor.setAlpha(o == 1 ? o : 255*o/10);
 }
 
 void DrawerPrivate::addShowOrHide(std::function<void (std::function<void ()>, bool)> showOrHide)

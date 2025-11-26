@@ -14,7 +14,8 @@ const char * DEFAULT_CONFIG = R"({
 "color.backgroud.opacity":1,
 "color.pen":"#000000",
 "color.pen.opacity":255,
-"size.pen":1
+"size.pen":1,
+"dir.download":"%dir.download%"
 })";
 
 DBApplication* app = static_cast<DBApplication*>(qApp);
@@ -26,8 +27,10 @@ Config::Config(QObject *parent)
     ,user(new ConfigHandle(USER, this))
     ,settingFile(app->applicationDataDir(true) + "/setting.json")
 {
+    QString defaultConfig = QString(DEFAULT_CONFIG).replace("%dir.download%",app->downloadDir());
+
     QJsonParseError err;
-    QJsonDocument doc = QJsonDocument::fromJson(DEFAULT_CONFIG, &err);
+    QJsonDocument doc = QJsonDocument::fromJson(defaultConfig.toUtf8(), &err);
     Q_ASSERT(err.error == QJsonParseError::NoError);
     Q_ASSERT(doc.isObject());
 

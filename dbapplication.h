@@ -35,6 +35,7 @@ public:
 
 
     QString applicationDataDir(bool mk = false);
+    QString downloadDir();
 
 private:
     QMap<QString, void *> singletons;

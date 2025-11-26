@@ -34,6 +34,8 @@ public:
     bool isMaxMode();
     bool isMaxMode(const QSize& s);
 
+    void download();
+
 private:
     void setupUi();
     QBoxLayout* setupToolButtonUi();
@@ -42,6 +44,7 @@ private:
     QPixmap pix;
     QSize maxSize;
     QSize minSize;
+    QString localFilePath;
 };
 
 #endif // PREVIEW_H

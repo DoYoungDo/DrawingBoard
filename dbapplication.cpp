@@ -26,3 +26,8 @@ QString DBApplication::applicationDataDir(bool mk)
     }
     return dir;
 }
+
+QString DBApplication::downloadDir()
+{
+    return QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+}
