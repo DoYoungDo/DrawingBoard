@@ -13,8 +13,10 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 add_subdirectory(components/)
+add_subdirectory(Third/QHotkey/)
 
-include_directories(BEFORE components)
+include_directories(BEFORE components/)
+include_directories(BEFORE Third/QHotkey/)
 
 set(PROJECT_SOURCES
     trayicon.h trayicon.cpp
@@ -34,10 +36,12 @@ add_executable(DrawingBoard
     res.qrc
     main.cpp
     README.md
+
 )
 
 target_link_libraries(DrawingBoard PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(DrawingBoard PRIVATE Components)
+target_link_libraries(DrawingBoard PRIVATE qhotkey)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

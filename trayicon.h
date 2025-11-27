@@ -10,8 +10,11 @@ class TrayIcon : public QSystemTrayIcon
 public:
     explicit TrayIcon(QObject *parent = nullptr);
 
-public:
+protected:
     virtual bool eventFilter(QObject* watched, QEvent* event) override;
+
+public slots:
+    void draw();
 
 private:
     Board* pBoard = nullptr;

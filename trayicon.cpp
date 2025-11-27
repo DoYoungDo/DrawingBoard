@@ -17,28 +17,8 @@ TrayIcon::TrayIcon(QObject *parent)
     this->setToolTip("DrawingBoard");
 
     QMenu* menu = new QMenu;
-    menu->addAction("Draw", [this](){
-        if(pBoard && pBoard->isVisible())
-        {
-            pBoard->raise();
-            pBoard->readyToDraw();
-            return;
-        }
-
-#ifdef Q_OS_WIN
-        pBoard = new Board(nullptr, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::SubWindow);
-#else
-        pBoard = new Board(nullptr, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
-#endif
-        connect(pBoard, &Board::destroyed, this, [this](){pBoard = nullptr;});
-
-        pBoard->setAttribute(Qt::WA_DeleteOnClose, true);
-        pBoard->setAttribute(Qt::WA_TranslucentBackground, true);
-        pBoard->installEventFilter(this);
-        pBoard->showMaximized();
-        pBoard->raise();
-    });
-
+    QAction* drawAction = menu->addAction("Draw");
+    connect(drawAction, &QAction::triggered, this, &TrayIcon::draw);
     menu->addSeparator();
     menu->addAction("退出", QKeySequence::Quit, [](){
         qApp->quit();
@@ -65,4 +45,27 @@ bool TrayIcon::eventFilter(QObject* watched, QEvent* event)
     }
 
     return QSystemTrayIcon::eventFilter(watched, event);
+}
+
+void TrayIcon::draw()
+{
+    if(pBoard && pBoard->isVisible())
+    {
+        pBoard->raise();
+        pBoard->readyToDraw();
+        return;
+    }
+
+#ifdef Q_OS_WIN
+    pBoard = new Board(nullptr, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::SubWindow);
+#else
+    pBoard = new Board(nullptr, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+#endif
+    connect(pBoard, &Board::destroyed, this, [this](){pBoard = nullptr;});
+
+    pBoard->setAttribute(Qt::WA_DeleteOnClose, true);
+    pBoard->setAttribute(Qt::WA_TranslucentBackground, true);
+    pBoard->installEventFilter(this);
+    pBoard->showMaximized();
+    pBoard->raise();
 }
