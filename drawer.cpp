@@ -350,7 +350,7 @@ QBoxLayout* Drawer::setupSliderUi()
     QLabel * penAlphaValueLabel = new QLabel(QString::number(handle->getInt("color.pen.opacity")));
     penAlphaValueLabel->setAlignment(Qt::AlignCenter);
     QSlider* penAlphaSlider = new QSlider(Qt::Vertical, this);
-    penAlphaSlider->setToolTip("pen size");
+    penAlphaSlider->setToolTip("pen opacity");
     penAlphaSlider->setRange(1,255);
     penAlphaSlider->setValue(handle->getInt("color.pen.opacity"));
     penAlphaSlider->setPageStep(10);
