@@ -75,18 +75,24 @@ void TrayIcon::draw()
 
 void TrayIcon::showPreference()
 {
+    if(pSettingView)
+    {
+        pSettingView->show();
+        return;
+    }
+
     bool boardVisible = pBoard && pBoard->isVisible();
     if(boardVisible)
     {
         pBoard->hide();
     }
 
-    SettingView* view = new SettingView();
-    connect(view, &SettingView::destroyed, this, [this, boardVisible](){
+    pSettingView = new SettingView();
+    connect(pSettingView, &SettingView::destroyed, this, [this, boardVisible](){
         if(boardVisible){
             pBoard->show();
         }
     });
-    view->setAttribute(Qt::WA_DeleteOnClose, true);
-    view->show();
+    pSettingView->setAttribute(Qt::WA_DeleteOnClose, true);
+    pSettingView->show();
 }

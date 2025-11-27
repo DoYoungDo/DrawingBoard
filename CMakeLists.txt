@@ -29,7 +29,7 @@ set(PROJECT_SOURCES
     tools.h tools.cpp
     dbapplication.h dbapplication.cpp
     config.h config.cpp
-    settingview.h settingview.cpp
+
 )
 
 add_executable(DrawingBoard
@@ -37,6 +37,7 @@ add_executable(DrawingBoard
     res.qrc
     main.cpp
     README.md
+    settingview.h settingview.cpp settingview.ui
 )
 
 target_link_libraries(DrawingBoard PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
