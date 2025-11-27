@@ -6,13 +6,13 @@
         <file>res/pens/pen_pencil.png</file>
         <file>res/pens/eraser_static.png</file>
         <file>res/pens/eraser.png</file>
-        <file>res/icons/arraw_ collapse.png</file>
         <file>res/icons/arraw_expand.png</file>
         <file>res/icons/down.png</file>
         <file>res/icons/arrow-Down.png</file>
         <file>res/icons/close.png</file>
         <file>res/icons/redo.png</file>
         <file>res/icons/undo.png</file>
+        <file>res/icons/arraw_collapse.png</file>
     </qresource>
     <qresource prefix="/icon">
         <file>res/pens/pen_default.png</file>

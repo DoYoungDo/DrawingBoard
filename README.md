@@ -4,6 +4,9 @@
 └─DrawingBoard/
   ├─CMakeLists.txt
   ├─README.md
+  ├─Third/
+  │  └─QHotkey/
+  │    └─...
   ├─board.cpp
   ├─board.h
   ├─boardprivate.h
@@ -11,6 +14,10 @@
   │  ├─CMakeLists.txt
   │  ├─capabilitybutton.cpp
   │  └─capabilitybutton.h
+  ├─config.cpp
+  ├─config.h
+  ├─dbapplication.cpp
+  ├─dbapplication.h
   ├─drawer.cpp
   ├─drawer.h
   ├─drawerprivate.h
@@ -20,12 +27,15 @@
   ├─preview.cpp
   ├─preview.h
   ├─res/
+  │  ├─icon.png
   │  ├─icons/
   │  │  ├─arraw_ collapse.png
   │  │  ├─arraw_expand.png
   │  │  ├─arrow-Down.png
   │  │  ├─close.png
-  │  │  └─down.png
+  │  │  ├─down.png
+  │  │  ├─redo.png
+  │  │  └─undo.png
   │  └─pens/
   │    ├─eraser.png
   │    ├─eraser_static.png
@@ -70,7 +80,8 @@
 
 - [x] 擦除
 
+- [ ] 设置
+
 - [ ] 国际化
 
-- [ ] 设置
 

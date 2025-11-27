@@ -504,7 +504,7 @@ QBoxLayout* Drawer::setupCapabilityButtonUi()
     connect(redoButton, &CapabilityButton::clicked, this, &Drawer::redoClicked);
 
     QIcon icon;
-    icon.addFile(":/res/icons/arraw_ collapse.png",QSize(32,32),QIcon::Normal);
+    icon.addFile(":/res/icons/arraw_collapse.png",QSize(32,32),QIcon::Normal);
     icon.addFile(":/res/icons/arraw_expand.png",QSize(32,32),QIcon::Selected);
     CapabilityButton* btn = new CapabilityButton(icon, this);
     btn->setIconSize(QSize(32,32));
