@@ -15,6 +15,7 @@ protected:
 
 public slots:
     void draw();
+    void showPreference();
 
 private:
     Board* pBoard = nullptr;

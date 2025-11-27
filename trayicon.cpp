@@ -2,6 +2,7 @@
 
 #include "board.h"
 #include "preview.h"
+#include "settingview.h"
 
 #include <QApplication>
 #include <QKeyEvent>
@@ -19,6 +20,8 @@ TrayIcon::TrayIcon(QObject *parent)
     QMenu* menu = new QMenu;
     QAction* drawAction = menu->addAction("Draw");
     connect(drawAction, &QAction::triggered, this, &TrayIcon::draw);
+    QAction* preferenceAction = menu->addAction("Preference", QKeySequence::Preferences);
+    connect(preferenceAction, &QAction::triggered, this, &TrayIcon::showPreference);
     menu->addSeparator();
     menu->addAction("退出", QKeySequence::Quit, [](){
         qApp->quit();
@@ -68,4 +71,22 @@ void TrayIcon::draw()
     pBoard->installEventFilter(this);
     pBoard->showMaximized();
     pBoard->raise();
+}
+
+void TrayIcon::showPreference()
+{
+    bool boardVisible = pBoard && pBoard->isVisible();
+    if(boardVisible)
+    {
+        pBoard->hide();
+    }
+
+    SettingView* view = new SettingView();
+    connect(view, &SettingView::destroyed, this, [this, boardVisible](){
+        if(boardVisible){
+            pBoard->show();
+        }
+    });
+    view->setAttribute(Qt::WA_DeleteOnClose, true);
+    view->show();
 }
