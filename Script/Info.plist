@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- 1. Info.plist 字典版本标识 -->
+    <!-- 固定值 6.0，指定 Info.plist 文件遵循的苹果属性列表规范版本，无需修改 -->
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+
+    <!-- 2. 应用包类型 -->
+    <!-- APPL = Application（可执行应用），是 macOS 应用的固定值；其他值如 FMWK(框架)、BNDL(插件) -->
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+
+    <!-- 3. 应用显示名称（Dock/访达中显示的名称） -->
+    <!-- 自定义应用名称，支持中文/英文，会显示在 Dock 图标下方、访达文件名称处 -->
+	<key>CFBundleName</key>
+	<string>DrawingBoard</string>
+
+    <!-- 4. 应用唯一标识符（Bundle ID） -->
+    <!-- 全局唯一标识，格式通常为 反向域名+应用名（如 io.cloud.doyoung.DrawingBoard），用于 macOS 沙箱、签名、App Store 分发 -->
+	<key>CFBundleIdentifier</key>
+	<string>io.cloud.doyoung.DrawingBoard</string>
+
+    <!-- 5. 应用可执行文件名称 -->
+    <!-- 必须与编译后生成的可执行文件名称一致（通常和项目名相同），系统通过此键找到应用的入口可执行文件 -->
+	<key>CFBundleExecutable</key>
+	<string>DrawingBoard</string>
+
+    <!-- 6. 应用内部版本号（Build 号） -->
+    <!-- 用于开发者区分构建版本，可包含数字/点（如 0.1、1.0.2、20251127），建议每次构建递增 -->
+	<key>CFBundleVersion</key>
+	<string>0.1</string>
+
+    <!-- 7. 应用显示版本号（对外展示） -->
+    <!-- 面向用户的版本号，通常比内部版本号简洁（如 0.1、1.0），App Store 分发时需与 CFBundleVersion 对应 -->
+	<key>CFBundleShortVersionString</key>
+	<string>0.1</string>
+
+    <!-- 8. 应用支持的最低 macOS 系统版本 -->
+    <!-- 示例：设置为 "10.15" 表示仅支持 macOS Catalina 及以上；留空则兼容所有系统（不推荐） -->
+    <!-- 建议填写具体版本，如 "11.0"（Big Sur）、"12.0"（Monterey） -->
+	<key>LSMinimumSystemVersion</key>
+	<string></string>
+
+    <!-- 9. 应用版权信息 -->
+    <!-- 显示在应用简介中的版权声明，如 "Copyright © 2025 doyoung. All rights reserved."，留空则不显示 -->
+	<key>NSHumanReadableCopyright</key>
+	<string></string>
+
+    <!-- 10. 应用图标文件名称 -->
+    <!-- 指定应用图标文件（.icns 格式）的名称（无需后缀），如 "AppIcon" 对应 AppIcon.icns；留空则使用系统默认图标 -->
+	<key>CFBundleIconFile</key>
+	<string>DrawingBoard</string>
+
+    <!-- 11. 应用默认开发语言/地区 -->
+    <!-- 指定应用的默认本地化区域，如 "en"（英文）、"zh_CN"（简体中文）、"zh_TW"（繁体中文） -->
+	<key>CFBundleDevelopmentRegion</key>
+	<string>zh_CN</string>
+
+    <!-- 12. 允许混合本地化资源 -->
+    <!-- true = 允许应用加载不同语言的本地化资源（如部分字符串用英文、部分用中文）；false = 仅加载当前系统语言的资源 -->
+	<key>CFBundleAllowMixedLocalizations</key>
+	<true/>
+
+    <!-- 13. 应用主类 -->
+    <!-- macOS 应用固定值为 NSApplication（应用程序入口类），Qt 应用无需修改此值 -->
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+
+    <!-- 14. 支持自动显卡切换 -->
+    <!-- true = 允许应用在 Mac 双显卡（集成/独立）之间自动切换，优化性能和功耗；笔记本 Mac 建议设为 true -->
+	<key>NSSupportsAutomaticGraphicsSwitching</key>
+	<true/>
+    
+    <!-- 15. 隐藏 Dock 图标 + 隐藏系统默认菜单栏 -->
+    <!-- true = 应用以「UI 元素」模式运行，无 Dock 图标、无顶部默认菜单栏（如 File/Edit/Help）；适合后台应用/托盘工具 -->
+    <!-- false/移除该键 = 恢复 Dock 图标和默认菜单栏 -->
+    <key>LSUIElement</key>
+    <true/>
+
+    <!-- 16. 支持高分辨率（Retina 屏幕） -->
+    <!-- true = 应用适配 Retina 屏幕，显示高清界面；macOS 现代应用必设，否则界面会模糊 -->
+    <!-- <key>NSHighResolutionCapable</key> -->
+    <!-- <true/> -->
+</dict>
+</plist>
