@@ -1,3 +1,7 @@
+## Preview
+
+![pix](./readme/drawingboard.png)
+
 ## Dir Structure
 
 ```
@@ -80,7 +84,7 @@
 
 - [x] 擦除
 
-- [ ] 设置
+- [-] 设置
 
 - [ ] 国际化
 
