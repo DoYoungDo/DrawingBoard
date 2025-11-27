@@ -33,7 +33,7 @@
   ├─res/
   │  ├─icon.png
   │  ├─icons/
-  │  │  ├─arraw_ collapse.png
+  │  │  ├─arraw_collapse.png
   │  │  ├─arraw_expand.png
   │  │  ├─arrow-Down.png
   │  │  ├─close.png
