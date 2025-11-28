@@ -16,7 +16,7 @@ public:
 
     enum ChangedType{INTERNAL,USER};
 signals:
-    void configChanged(ChangedType type);
+    void configChanged(ChangedType type, const QString& id);
 
 protected:
     virtual void timerEvent(QTimerEvent* event) override;
@@ -46,7 +46,7 @@ class ConfigHandle : public QObject
 public:
     inline void setValue(const QString& id, const QVariant& v){
         config->setValue(id, v);
-        emit config->configChanged(type);
+        emit config->configChanged(type, id);
     }
     inline QVariant getValue(const QString& id){return config->getValue(id);}
     inline bool getBool(const QString& id){return getValue(id).toBool();}

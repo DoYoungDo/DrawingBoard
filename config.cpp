@@ -18,6 +18,7 @@ const char * DEFAULT_CONFIG = R"({
 "#000000","#ffffff","#ff0000","#ffff00","#00ff00","#0000ff"
 ],
 "size.pen":1,
+"path.setting":"%path.setting%",
 "dir.download":"%dir.download%"
 })";
 
@@ -30,7 +31,9 @@ Config::Config(QObject *parent)
     ,user(new ConfigHandle(USER, this))
     ,settingFile(app->applicationDataDir(true) + "/setting.json")
 {
-    QString defaultConfig = QString(DEFAULT_CONFIG).replace("%dir.download%",app->downloadDir());
+    QString defaultConfig = QString(DEFAULT_CONFIG)
+                                .replace("%path.setting%",settingFile.fileName())
+                                .replace("%dir.download%",app->downloadDir());
 
     QJsonParseError err;
     QJsonDocument doc = QJsonDocument::fromJson(defaultConfig.toUtf8(), &err);
