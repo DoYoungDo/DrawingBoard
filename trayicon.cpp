@@ -89,6 +89,7 @@ void TrayIcon::showPreference()
 
     pSettingView = new SettingView();
     connect(pSettingView, &SettingView::destroyed, this, [this, boardVisible](){
+        pSettingView = nullptr;
         if(boardVisible){
             pBoard->show();
         }
