@@ -437,6 +437,14 @@ void Board::mousePressEvent(QMouseEvent* event)
             this->update();
         }
     }
+    else if(event->button() == Qt::BackButton)
+    {
+        d->undoredoStack->undo();
+    }
+    else if(event->button() == Qt::ForwardButton)
+    {
+        d->undoredoStack->redo();
+    }
     QWidget::mousePressEvent(event);
 }
 
