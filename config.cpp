@@ -19,7 +19,8 @@ const char * DEFAULT_CONFIG = R"({
 ],
 "size.pen":1,
 "path.setting":"%path.setting%",
-"dir.download":"%dir.download%"
+"dir.download":"%dir.download%",
+"key.global.draw":"f4"
 })";
 
 DBApplication* app = static_cast<DBApplication*>(qApp);

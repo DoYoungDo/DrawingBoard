@@ -5,6 +5,7 @@
 
 class DBApplication : public QApplication
 {
+    Q_OBJECT
 public:
     DBApplication(int &argc, char **argv);
 

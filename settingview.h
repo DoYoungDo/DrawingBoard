@@ -15,6 +15,9 @@ public:
     explicit SettingView(QWidget *parent = nullptr);
     ~SettingView();
 
+private slots:
+    void on_keySequenceEdit_Draw_keySequenceChanged(const QKeySequence &keySequence);
+
 private:
     Ui::SettingView *ui;
 };
