@@ -38,6 +38,8 @@ add_executable(DrawingBoard
     main.cpp
     README.md
     settingview.h settingview.cpp settingview.ui
+    translator.h translator.cpp
+    res/i18n.qrc
 )
 
 target_link_libraries(DrawingBoard PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Preference</string>
+   <string>menu.action.text.preference</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -36,7 +36,7 @@
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>Common</string>
+       <string>setting.group.title.setting.common</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <property name="spacing">
@@ -62,12 +62,12 @@
          <item>
           <widget class="QLabel" name="label_10">
            <property name="text">
-            <string>Language:</string>
+            <string>setting.label.text.language</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox">
+          <widget class="QComboBox" name="comboBox_language">
            <item>
             <property name="text">
              <string>简体中文</string>
@@ -98,7 +98,7 @@
        <item>
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
-          <string>Config file path:</string>
+          <string>setting.group.title.text.setting.file.path</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <property name="spacing">
@@ -121,7 +121,7 @@
             <item>
              <widget class="QLabel" name="label_11">
               <property name="text">
-               <string>path:</string>
+               <string>setting.label.text.path</string>
               </property>
              </widget>
             </item>
@@ -148,14 +148,14 @@
             <item>
              <widget class="QPushButton" name="pushButton">
               <property name="text">
-               <string>open dir</string>
+               <string>setting.button.text.open.dir</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="pushButton_2">
               <property name="text">
-               <string>change</string>
+               <string>setting.button.text.change</string>
               </property>
              </widget>
             </item>
@@ -167,7 +167,7 @@
        <item>
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
-          <string>Download dir</string>
+          <string>setting.group.title.text.download.dir</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <property name="spacing">
@@ -190,7 +190,7 @@
             <item>
              <widget class="QLabel" name="label_12">
               <property name="text">
-               <string>dir:</string>
+               <string>setting.label.text.dir</string>
               </property>
              </widget>
             </item>
@@ -217,14 +217,14 @@
             <item>
              <widget class="QPushButton" name="pushButton_3">
               <property name="text">
-               <string>open dir</string>
+               <string>setting.button.text.open.dir</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="pushButton_4">
               <property name="text">
-               <string>change</string>
+               <string>setting.button.text.change</string>
               </property>
              </widget>
             </item>
@@ -254,7 +254,7 @@
          <item>
           <widget class="QPushButton" name="pushButton_6">
            <property name="text">
-            <string>reset</string>
+            <string>setting.button.text.reset</string>
            </property>
           </widget>
          </item>
@@ -277,13 +277,13 @@
      </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>ShortCut</string>
+       <string>setting.group.title.setting.short.cut</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_7">
        <item>
         <widget class="QGroupBox" name="groupBox_3">
          <property name="title">
-          <string>Global short cut</string>
+          <string>setting.group.title.text.global.short.cut</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_6">
           <item>
@@ -291,7 +291,7 @@
             <item>
              <widget class="QLabel" name="label_7">
               <property name="text">
-               <string>Draw:</string>
+               <string>menu.action.text.draw</string>
               </property>
              </widget>
             </item>
@@ -349,7 +349,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>About</string>
+       <string>setting.group.title.setting.about</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <property name="spacing">

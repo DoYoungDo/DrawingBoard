@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>i18n/简体中文.json</file>
+        <file>i18n/English.json</file>
+    </qresource>
+</RCC>

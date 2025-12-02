@@ -1,0 +1,17 @@
+{
+    "menu.action.text.draw":"画",
+    "menu.action.text.preference":"首选项",
+    "menu.action.text.quit":"退出",
+    "setting.group.title.setting.common":"通用",
+    "setting.group.title.setting.short.cut":"快捷键",
+    "setting.group.title.setting.about":"关于",
+    "setting.label.text.language":"语言：",
+    "setting.group.title.text.setting.file.path":"配置文件路径",
+    "setting.label.text.path":"路径：",
+    "setting.group.title.text.download.dir":"下载目录",
+    "setting.label.text.dir":"目录：",
+    "setting.button.text.open.dir":"打开目录",
+    "setting.button.text.change":"切换",
+    "setting.button.text.reset":"重置",
+    "setting.group.title.text.global.short.cut":"全局局势键"
+}

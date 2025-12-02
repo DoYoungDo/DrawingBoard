@@ -1,0 +1,17 @@
+{
+    "menu.action.text.draw":"Draw",
+    "menu.action.text.preference":"Preference",
+    "menu.action.text.quit":"Quit",
+    "setting.group.title.setting.common":"Common",
+    "setting.group.title.setting.short.cut":"ShortCut",
+    "setting.group.title.setting.about":"About",
+    "setting.label.text.language":"Languge：",
+    "setting.group.title.text.setting.file.path":"Setting file path",
+    "setting.label.text.path":"Path：",
+    "setting.group.title.text.download.dir":"Download dir",
+    "setting.label.text.dir":"Dir：",
+    "setting.button.text.open.dir":"Open dir",
+    "setting.button.text.change":"Change",
+    "setting.button.text.reset":"Reset",
+    "setting.group.title.text.global.short.cut":"Global shortcut"
+}

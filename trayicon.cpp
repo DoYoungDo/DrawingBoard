@@ -18,12 +18,12 @@ TrayIcon::TrayIcon(QObject *parent)
     this->setToolTip("DrawingBoard");
 
     QMenu* menu = new QMenu;
-    QAction* drawAction = menu->addAction("Draw");
+    QAction* drawAction = menu->addAction(tr("menu.action.text.draw"));
     connect(drawAction, &QAction::triggered, this, &TrayIcon::draw);
-    QAction* preferenceAction = menu->addAction("Preference", QKeySequence::Preferences);
+    QAction* preferenceAction = menu->addAction(tr("menu.action.text.preference"), QKeySequence::Preferences);
     connect(preferenceAction, &QAction::triggered, this, &TrayIcon::showPreference);
     menu->addSeparator();
-    menu->addAction("退出", QKeySequence::Quit, [](){
+    menu->addAction(tr("menu.action.text.quit"), QKeySequence::Quit, [](){
         qApp->quit();
     });
 

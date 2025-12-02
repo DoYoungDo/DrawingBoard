@@ -18,6 +18,8 @@ public:
 private slots:
     void on_keySequenceEdit_Draw_keySequenceChanged(const QKeySequence &keySequence);
 
+    void on_comboBox_language_currentTextChanged(const QString &text);
+
 private:
     Ui::SettingView *ui;
 };

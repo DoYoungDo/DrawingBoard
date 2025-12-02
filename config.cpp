@@ -20,6 +20,7 @@ const char * DEFAULT_CONFIG = R"({
 "size.pen":1,
 "path.setting":"%path.setting%",
 "dir.download":"%dir.download%",
+"language":"\u7b80\u4f53\u4e2d\u6587",
 "key.global.draw":"f4"
 })";
 
