@@ -20,7 +20,7 @@
     <!-- 4. 应用唯一标识符（Bundle ID） -->
     <!-- 全局唯一标识，格式通常为 反向域名+应用名（如 io.cloud.doyoung.DrawingBoard），用于 macOS 沙箱、签名、App Store 分发 -->
 	<key>CFBundleIdentifier</key>
-	<string>io.cloud.doyoung.DrawingBoard</string>
+	<string>com.github.doyoung.DrawingBoard</string>
 
     <!-- 5. 应用可执行文件名称 -->
     <!-- 必须与编译后生成的可执行文件名称一致（通常和项目名相同），系统通过此键找到应用的入口可执行文件 -->
