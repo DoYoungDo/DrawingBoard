@@ -24,7 +24,7 @@ protected:
 public:
     ConfigHandle* getConfigHandle(ChangedType t);
 private:
-    void setValue(const QString& id, const QVariant& v);
+    bool setValue(const QString& id, const QVariant& v);
     QVariant getValue(const QString& id);
 
     void flush();
@@ -44,10 +44,7 @@ class ConfigHandle : public QObject
     ConfigHandle(Config::ChangedType t, Config* c)
         :QObject(c),type(t),config(c){}
 public:
-    inline void setValue(const QString& id, const QVariant& v){
-        config->setValue(id, v);
-        emit config->configChanged(type, id);
-    }
+    inline void setValue(const QString& id, const QVariant& v){if(config->setValue(id, v)) emit config->configChanged(type, id);}
     inline QVariant getValue(const QString& id){return config->getValue(id);}
     inline bool getBool(const QString& id){return getValue(id).toBool();}
     inline int getInt(const QString& id){return getValue(id).toInt();}

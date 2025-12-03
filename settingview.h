@@ -20,6 +20,12 @@ private slots:
 
     void on_comboBox_language_currentTextChanged(const QString &text);
 
+    void on_pushButton_openSettingDir_clicked();
+
+    void on_pushButton_openDownloadDir_clicked();
+
+    void on_pushButton_changeDownloadDir_clicked();
+
 private:
     Ui::SettingView *ui;
 };

@@ -146,16 +146,9 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton">
+             <widget class="QPushButton" name="pushButton_openSettingDir">
               <property name="text">
                <string>setting.button.text.open.dir</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pushButton_2">
-              <property name="text">
-               <string>setting.button.text.change</string>
               </property>
              </widget>
             </item>
@@ -215,14 +208,14 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_3">
+             <widget class="QPushButton" name="pushButton_openDownloadDir">
               <property name="text">
                <string>setting.button.text.open.dir</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_4">
+             <widget class="QPushButton" name="pushButton_changeDownloadDir">
               <property name="text">
                <string>setting.button.text.change</string>
               </property>

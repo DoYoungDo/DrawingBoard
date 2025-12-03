@@ -18,7 +18,8 @@ const char * DEFAULT_CONFIG = R"({
 "#000000","#ffffff","#ff0000","#ffff00","#00ff00","#0000ff"
 ],
 "size.pen":1,
-"path.setting":"%path.setting%",
+"const.path.setting":"%const.path.setting%",
+"const.dir.setting":"%const.dir.setting%",
 "dir.download":"%dir.download%",
 "language":"\u7b80\u4f53\u4e2d\u6587",
 "key.global.draw":"f4"
@@ -34,7 +35,8 @@ Config::Config(QObject *parent)
     ,settingFile(app->applicationDataDir(true) + "/setting.json")
 {
     QString defaultConfig = QString(DEFAULT_CONFIG)
-                                .replace("%path.setting%",settingFile.fileName())
+                                .replace("%const.path.setting%",settingFile.fileName())
+                                .replace("%const.dir.setting%",app->applicationDataDir())
                                 .replace("%dir.download%",app->downloadDir());
 
     QJsonParseError err;
@@ -61,7 +63,7 @@ Config::Config(QObject *parent)
         settingFile.close();
     }
 
-    timerId = startTimer(1000);
+    // timerId = startTimer(1000);
 }
 
 Config::~Config()
@@ -90,9 +92,14 @@ ConfigHandle* Config::getConfigHandle(ChangedType t)
     }
 }
 
-void Config::setValue(const QString& id, const QVariant& v)
+bool Config::setValue(const QString &id, const QVariant &v)
 {
+    if(id.startsWith("const.")){
+        return false;
+    }
+
     data.insert(id, v);
+    return true;
 }
 
 QVariant Config::getValue(const QString& id)
