@@ -4,7 +4,7 @@
 #include "ui_settingview.h"
 
 SettingView::SettingView(QWidget *parent)
-    :QWidget(parent, Qt::WindowStaysOnTopHint)
+    :QWidget(parent, Qt::WindowStaysOnTopHint | Qt::Dialog)
     ,ui(new Ui::SettingView)
 {
     ui->setupUi(this);

@@ -32,14 +32,15 @@ TrayIcon::TrayIcon(QObject *parent)
 
 bool TrayIcon::eventFilter(QObject* watched, QEvent* event)
 {
-    if(watched == pBoard)
+    if(watched->inherits("QWidget"))
     {
+        QWidget* w = qobject_cast<QWidget*>(watched);
         auto* keyEvent = static_cast<QKeyEvent*>(event);
         if(keyEvent)
         {
             switch (keyEvent->key()) {
             case Qt::Key_Escape:
-                pBoard->close();
+                w->close();
                 return true;
             default:
                 break;
@@ -52,6 +53,11 @@ bool TrayIcon::eventFilter(QObject* watched, QEvent* event)
 
 void TrayIcon::draw()
 {
+    if(pSettingView && pSettingView->isVisible())
+    {
+        return;
+    }
+
     if(pBoard && pBoard->isVisible())
     {
         pBoard->raise();
@@ -88,12 +94,14 @@ void TrayIcon::showPreference()
     }
 
     pSettingView = new SettingView();
+    pSettingView->installEventFilter(this);
+    pSettingView->setAttribute(Qt::WA_DeleteOnClose, true);
+    pSettingView->show();
+
     connect(pSettingView, &SettingView::destroyed, this, [this, boardVisible](){
         pSettingView = nullptr;
         if(boardVisible){
             pBoard->show();
         }
     });
-    pSettingView->setAttribute(Qt::WA_DeleteOnClose, true);
-    pSettingView->show();
 }
