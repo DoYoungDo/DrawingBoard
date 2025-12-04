@@ -1,57 +1,24 @@
 ## Preview
 
-![pix](./readme/drawingboard.png)
+<!-- ![pix](./readme/drawingboard.png) -->
+<img src="./readme/drawingboard.png" alt="preview" width="400">
 
-## Dir Structure
+## Dependence
 
+```shell
+$ mkdir Third
+$ cd Third
+$ git clone https://github.com/DoYoungDo/QHotkey.git
 ```
-└─DrawingBoard/
-  ├─CMakeLists.txt
-  ├─README.md
-  ├─Third/
-  │  └─QHotkey/
-  │    └─...
-  ├─board.cpp
-  ├─board.h
-  ├─boardprivate.h
-  ├─components/
-  │  ├─CMakeLists.txt
-  │  ├─capabilitybutton.cpp
-  │  └─capabilitybutton.h
-  ├─config.cpp
-  ├─config.h
-  ├─dbapplication.cpp
-  ├─dbapplication.h
-  ├─drawer.cpp
-  ├─drawer.h
-  ├─drawerprivate.h
-  ├─main.cpp
-  ├─pen.cpp
-  ├─pen.h
-  ├─preview.cpp
-  ├─preview.h
-  ├─res/
-  │  ├─icon.png
-  │  ├─icons/
-  │  │  ├─arraw_collapse.png
-  │  │  ├─arraw_expand.png
-  │  │  ├─arrow-Down.png
-  │  │  ├─close.png
-  │  │  ├─down.png
-  │  │  ├─redo.png
-  │  │  └─undo.png
-  │  └─pens/
-  │    ├─eraser.png
-  │    ├─eraser_static.png
-  │    ├─pen_default.png
-  │    ├─pen_default_static.png
-  │    ├─pen_pencil.png
-  │    └─pen_pencil_static.png
-  ├─res.qrc
-  ├─tools.cpp
-  ├─tools.h
-  ├─trayicon.cpp
-  └─trayicon.h
+
+## Build
+
+```shell
+# build
+$ python Script/build.py --build-dir build --qt-prefix /Users/doyoung/Qt --qt-cmake-dir /Users/doyoung/Qt/6.5.3/macos/lib/cmake --type Release
+# bundle
+$ python Script/bundle.py --build-dir build --info Info.plist --icon assets/DrawingBoard.icns --qt-prefix /Users/doyoung/Qt --qt-version-subdir "6.5.3/macos" --short-version 1.2 --build-version 0.0.1
+
 ```
 
 ## Feature
