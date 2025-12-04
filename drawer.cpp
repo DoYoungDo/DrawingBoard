@@ -16,6 +16,8 @@
 #include <QSlider>
 #include <QBoxLayout>
 #include <QDateTime>
+#include <QLineEdit>
+#include <QSpinBox>
 
 
 PenButton::PenButton(Pen* p, QWidget* parent)
@@ -305,69 +307,87 @@ QBoxLayout* Drawer::setupSliderUi()
     ConfigHandle* handle = static_cast<DBApplication*>(qApp)->getSingleton<Config>()->getConfigHandle(Config::INTERNAL);
     Q_ASSERT(handle);
 
-    QLabel * backgroundAlphaValueLabel = new QLabel(QString::number(handle->getInt("color.backgroud.opacity")));
-    backgroundAlphaValueLabel->setAlignment(Qt::AlignCenter);
+    QSpinBox* backgroundAlphaValueEdit = new QSpinBox(this);
+    backgroundAlphaValueEdit->setRange(1, 10);
+    backgroundAlphaValueEdit->setValue(handle->getInt("color.backgroud.opacity"));
+    backgroundAlphaValueEdit->setSingleStep(1);
     QSlider* backgroundAlphaSlider = new QSlider(Qt::Vertical, this);
     backgroundAlphaSlider->setToolTip("background");
     backgroundAlphaSlider->setRange(1,10);
-    backgroundAlphaSlider->setValue(handle->getInt("color.backgroud.opacity"));
+    backgroundAlphaSlider->setValue(backgroundAlphaValueEdit->value());
     backgroundAlphaSlider->setPageStep(1);
     backgroundAlphaSlider->setSingleStep(1);
-    connect(backgroundAlphaSlider,&QSlider::valueChanged, this, [this, handle, backgroundAlphaValueLabel](int value){
+    connect(backgroundAlphaSlider,&QSlider::valueChanged, this, [this, handle, backgroundAlphaValueEdit](int value){
         handle->setValue("color.backgroud.opacity", value);
-
-        backgroundAlphaValueLabel->setText(QString::number(value));
 
         int alpha = value == 1 ? value : 255 * value /10;
         d->backgroundColor.setAlpha(alpha);
+
+        blockSignals(true);
+        backgroundAlphaValueEdit->setValue(value);
+        blockSignals(false);
         emit backgroundOpacityChanged(d->backgroundColor);
     });
+    connect(backgroundAlphaValueEdit, &QSpinBox::valueChanged, backgroundAlphaSlider, &QSlider::setValue);
     QBoxLayout* backgroundAlphaSliderGroupLayout = createLayout(Qt::Vertical,0, QMargins(10,0,10,0));
     backgroundAlphaSliderGroupLayout->addWidget(backgroundAlphaSlider, 1);
-    backgroundAlphaSliderGroupLayout->addWidget(backgroundAlphaValueLabel, 0);
+    backgroundAlphaSliderGroupLayout->addWidget(backgroundAlphaValueEdit, 0);
 
-    QLabel * penSizeValueLabel = new QLabel(QString::number(handle->getInt("size.pen")));
-    penSizeValueLabel->setAlignment(Qt::AlignCenter);
+    QSpinBox* penSizeEdit = new QSpinBox(this);
+    penSizeEdit->setRange(1, 100);
+    penSizeEdit->setValue(handle->getInt("size.pen"));
+    penSizeEdit->setSingleStep(1);
     QSlider* penSizeSlider = new QSlider(Qt::Vertical, this);
     penSizeSlider->setToolTip("pen size");
     penSizeSlider->setRange(1,100);
-    penSizeSlider->setValue(handle->getInt("size.pen"));
+    penSizeSlider->setValue(penSizeEdit->value());
     penSizeSlider->setPageStep(10);
     penSizeSlider->setSingleStep(10);
-    connect(penSizeSlider,&QSlider::valueChanged, this, [this, handle, penSizeValueLabel](int value){
+    connect(penSizeSlider,&QSlider::valueChanged, this, [this, handle, penSizeEdit](int value){
         handle->setValue("size.pen", value);
 
         foreachPen([=](Pen* pen){
             pen->setWidth(value);
         });
-        penSizeValueLabel->setText(QString::number(value));
+
+        blockSignals(true);
+        penSizeEdit->setValue(value);
+        blockSignals(false);
+
         emit penSizeChanged(value);
     });
+    connect(penSizeEdit, &QSpinBox::valueChanged, penSizeSlider, &QSlider::setValue);
     QBoxLayout* penSizeSliderGroupLayout = createLayout(Qt::Vertical,0, QMargins(10,0,10,0));
     penSizeSliderGroupLayout->addWidget(penSizeSlider, 1);
-    penSizeSliderGroupLayout->addWidget(penSizeValueLabel, 0);
+    penSizeSliderGroupLayout->addWidget(penSizeEdit, 0);
 
-    QLabel * penAlphaValueLabel = new QLabel(QString::number(handle->getInt("color.pen.opacity")));
-    penAlphaValueLabel->setAlignment(Qt::AlignCenter);
+    QSpinBox* penAlphaEdit = new QSpinBox(this);
+    penAlphaEdit->setRange(1, 255);
+    penAlphaEdit->setValue(handle->getInt("color.pen.opacity"));
+    penAlphaEdit->setSingleStep(1);
     QSlider* penAlphaSlider = new QSlider(Qt::Vertical, this);
     penAlphaSlider->setToolTip("pen opacity");
     penAlphaSlider->setRange(1,255);
-    penAlphaSlider->setValue(handle->getInt("color.pen.opacity"));
+    penAlphaSlider->setValue(penAlphaEdit->value());
     penAlphaSlider->setPageStep(10);
     penAlphaSlider->setSingleStep(10);
-    connect(penAlphaSlider,&QSlider::valueChanged, this, [this, handle, penAlphaValueLabel](int value){
+    connect(penAlphaSlider,&QSlider::valueChanged, this, [this, handle, penAlphaEdit](int value){
         handle->setValue("color.pen.opacity", value);
 
-        penAlphaValueLabel->setText(QString::number(value));
         foreachPen([=](Pen* pen){
             QColor c = pen->color();
             c.setAlpha(value);
             pen->setColor(c);
         });
+
+        blockSignals(true);
+        penAlphaEdit->setValue(value);
+        blockSignals(false);
     });
+    connect(penAlphaEdit, &QSpinBox::valueChanged, penAlphaSlider, &QSlider::setValue);
     QBoxLayout* penAlphaSliderGroupLayout = createLayout(Qt::Vertical,0, QMargins(10,0,10,0));
     penAlphaSliderGroupLayout->addWidget(penAlphaSlider, 1);
-    penAlphaSliderGroupLayout->addWidget(penAlphaValueLabel, 0);
+    penAlphaSliderGroupLayout->addWidget(penAlphaEdit, 0);
 
     QBoxLayout* sliderLayout = createLayout(Qt::Horizontal, 10);
     sliderLayout->addStretch();
@@ -376,20 +396,19 @@ QBoxLayout* Drawer::setupSliderUi()
     sliderLayout->addLayout(penAlphaSliderGroupLayout);
     sliderLayout->addStretch();
 
-
     d->addShowOrHide([=](std::function<void()> oldCall, bool v){
         if(oldCall){
             oldCall();
         }
 
         backgroundAlphaSlider->setVisible(v);
-        backgroundAlphaValueLabel->setVisible(v);
+        backgroundAlphaValueEdit->setVisible(v);
 
         penSizeSlider->setVisible(v);
-        penSizeValueLabel->setVisible(v);
+        penSizeEdit->setVisible(v);
 
         penAlphaSlider->setVisible(v);
-        penAlphaValueLabel->setVisible(v);
+        penAlphaEdit->setVisible(v);
     });
 
     return sliderLayout;
