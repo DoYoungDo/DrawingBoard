@@ -23,6 +23,7 @@ protected:
 
 public:
     ConfigHandle* getConfigHandle(ChangedType t);
+    void reset();
 private:
     bool setValue(const QString& id, const QVariant& v);
     QVariant getValue(const QString& id);
@@ -36,6 +37,7 @@ private:
     bool isDirty = false;
     int timerId = -1;
     QFile settingFile;
+    bool resetFlag = false;
 };
 
 class ConfigHandle : public QObject

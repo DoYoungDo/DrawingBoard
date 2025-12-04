@@ -245,9 +245,16 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_6">
+          <widget class="QPushButton" name="pushButton_resetsetting">
            <property name="text">
             <string>setting.button.text.reset</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_resettip">
+           <property name="text">
+            <string>tip.text.reset.done</string>
            </property>
           </widget>
          </item>

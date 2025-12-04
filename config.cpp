@@ -68,9 +68,14 @@ Config::Config(QObject *parent)
 
 Config::~Config()
 {
-    flush();
-    data.clear();
-    settingFile.close();
+    if(resetFlag){
+        data.clear();
+        flush();
+    }
+    else{
+        flush();
+        data.clear();
+    }
 }
 
 void Config::timerEvent(QTimerEvent* event)
@@ -90,6 +95,11 @@ ConfigHandle* Config::getConfigHandle(ChangedType t)
     default:
         return internal;
     }
+}
+
+void Config::reset()
+{
+    resetFlag = true;
 }
 
 bool Config::setValue(const QString &id, const QVariant &v)

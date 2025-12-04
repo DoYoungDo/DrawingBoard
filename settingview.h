@@ -26,6 +26,8 @@ private slots:
 
     void on_pushButton_changeDownloadDir_clicked();
 
+    void on_pushButton_resetsetting_clicked();
+
 private:
     Ui::SettingView *ui;
 };

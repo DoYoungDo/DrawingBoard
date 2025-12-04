@@ -19,6 +19,7 @@ SettingView::SettingView(QWidget *parent)
     ui->downloadDirEdit->setText(handle->getString("dir.download"));
     ui->keySequenceEdit_Draw->setKeySequence(QKeySequence::fromString(handle->getString("key.global.draw")));
     ui->comboBox_language->setCurrentText(handle->getString("language"));
+    ui->label_resettip->setVisible(false);
 
     connect(config, &Config::configChanged, this, [this, handle](Config::ChangedType type, const QString &id){
         Q_UNUSED(type);
@@ -79,5 +80,14 @@ void SettingView::on_pushButton_changeDownloadDir_clicked()
     QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),downloadDir,QFileDialog::ShowDirsOnly| QFileDialog::DontResolveSymlinks);
 
     handle->setValue("dir.download", dir);
+}
+
+
+void SettingView::on_pushButton_resetsetting_clicked()
+{
+    Config* config = static_cast<DBApplication*>(qApp)->getSingleton<Config>();
+    config->reset();
+
+    ui->label_resettip->setVisible(true);
 }
 
