@@ -26,7 +26,10 @@ int main(int argc, char *argv[])
     TrayIcon icon;
 
     QHotkey hotkey(QKeySequence(handle->getString(CONFIG_KEY_SHORT_CUT_GLOBAL_DRAW)), true, &a);
-    QObject::connect(&hotkey, &QHotkey::activated, &icon, &TrayIcon::draw);
+    if(hotkey.isRegistered())
+    {
+        QObject::connect(&hotkey, &QHotkey::activated, &icon, &TrayIcon::draw);
+    }
 
     QObject::connect(config, &Config::configChanged, &a, [&](Config::ChangedType type, const QString& id){
         // qDebug() << id << type;
