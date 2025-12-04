@@ -233,6 +233,11 @@ void Drawer::mouseDoubleClickEvent(QMouseEvent* event)
     event->accept();
 }
 
+void Drawer::leaveEvent(QEvent *event)
+{
+    emit leave();
+}
+
 void Drawer::collapse()
 {
     if(d->collapse)

@@ -57,6 +57,7 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent* event) override;
     virtual void mouseReleaseEvent(QMouseEvent* event) override;
     virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
+    virtual void leaveEvent(QEvent* event) override;
 
 signals:
     void backgroundOpacityChanged(const QColor&);
@@ -69,6 +70,7 @@ signals:
     void downClicked();
     void undoClicked();
     void redoClicked();
+    void leave();
 
 public slots:
     void collapse();

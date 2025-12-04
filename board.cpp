@@ -41,6 +41,7 @@ BoardPrivate::BoardPrivate(Board* _q)
         foregroundCanvas.fill(Qt::transparent);
 
         QPainter p(&foregroundCanvas);
+        p.setRenderHint(QPainter::Antialiasing);
         p.setPen(*controlPlatform->currentPen());
         p.drawPoint(q->rect().center());
 
@@ -157,6 +158,11 @@ BoardPrivate::BoardPrivate(Board* _q)
         });
 
         QTimer::singleShot(300, q, showMin);
+    });
+    controlPlatform->connect(controlPlatform, &Drawer::leave, controlPlatform, [this](){
+        foregroundCanvas.fill(Qt::transparent);
+        q->drawPen(q->cursor().pos());
+        q->update();
     });
 
 
@@ -515,6 +521,7 @@ void Board::drawPoint(QPoint pointPos)
     {
         const Pen* pen = d->controlPlatform->currentPen();
         QPainter p(&d->boradCanvas);
+        p.setRenderHint(QPainter::Antialiasing);
         p.setOpacity(qreal((qreal)pen->color().alpha() / (qreal)255));
         p.setPen(*pen);
         p.setCompositionMode(pen->isEraser() ? QPainter::CompositionMode_Clear : p.compositionMode());
@@ -529,6 +536,7 @@ void Board::drawLine(QPoint lastMousePos, QPoint mousePos)
         const Pen* pen = d->controlPlatform->currentPen();
 
         QPainter painter(&d->boradCanvas);
+        painter.setRenderHint(QPainter::Antialiasing);
         painter.setOpacity(qreal((qreal)pen->color().alpha() / (qreal)255));
         // 设置画笔属性
         painter.setPen(*d->controlPlatform->currentPen());
