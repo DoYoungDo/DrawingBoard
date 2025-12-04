@@ -15,6 +15,7 @@
 #include <QPixmapCache>
 #include <QDateTime>
 #include <QUndoStack>
+#include <QPainterPath>
 
 BoardPrivate::BoardPrivate(Board* _q)
     :q(_q)
@@ -236,7 +237,7 @@ bool BoardPrivate::showOrHideDrawer(QPoint p)
     auto cRect = q->rect();
     if(p.y() > cRect.center().y())
     {
-        if(controlPlatform->isVisible() || !(state & State::SHOW_CONTROL))
+        if(controlPlatform->isVisible() || !(state & State::SHOW_CONTROL) || mouseIsPress)
         {
             return false;
         }
@@ -388,34 +389,41 @@ void Board::resizeEvent(QResizeEvent* event)
 
 void Board::mouseMoveEvent(QMouseEvent* event)
 {
-    auto curPos = event->pos();
+    auto position = event->position();
+    if(d->mousePosition == position) return;
+    // qDebug() << "last pos" << d->mousePosition << "cur pos" << position;
 
-    bool upToDate = !d->mouseIsPress ? d->showOrHideDrawer(curPos) : false;
+    d->showOrHideDrawer(position.toPoint());
+
+    QPainterPath path(d->mousePosition);
+    path.moveTo(position);
+    path.addRect(d->penRectF);
 
     if(d->mouseLastPos.isNull())
     {
-        d->mouseLastPos = curPos;
+        d->mouseLastPos = position.toPoint();
     }
     else
     {
         if(d->mouseIsPress)
         {
-            drawLine(d->mouseLastPos, curPos);
+            drawLine(d->mouseLastPos, position.toPoint());
+            QPainterPath linePath(d->mouseLastPos);
+            linePath.moveTo(position);
+            path.addPath(linePath);
         }
 
-        d->mouseLastPos = curPos;
+        d->mouseLastPos = position.toPoint();
     }
 
-    drawPen(curPos);
-    upToDate = true;
+    path.addRect(d->penRectF = drawPen(position));
 
+    QTimer::singleShot(0,[this,path](){
+        this->update(path.boundingRect().toRect().marginsAdded(QMargins(100,100,100,100)));
+        // this->update();
+    });
 
-    if(upToDate)
-    {
-        this->update();
-    }
-
-    QWidget::mouseMoveEvent(event);
+    d->mousePosition = position;
 }
 
 void Board::mousePressEvent(QMouseEvent* event)
@@ -484,12 +492,19 @@ void Board::mouseReleaseEvent(QMouseEvent* event)
 
 void Board::enterEvent(QEnterEvent* event)
 {
+    // qDebug() << "enter" << event->position();
+
+    d->mousePosition = event->position();
+    d->penRectF = drawPen(d->mousePosition);
+
+    this->repaint();
     // d->mouseLastPos = event->position().toPoint();
     // d->restoreState();
 }
 
 void Board::leaveEvent(QEvent* event)
 {
+    // qDebug() << "leave" << event->position();
     // d->savaState();
     // d->setState((BoardPrivate::State)(d->state & ~BoardPrivate::SHOW_FOREGTOUND));
 }
@@ -511,18 +526,6 @@ void Board::drawLine(QPoint lastMousePos, QPoint mousePos)
 {
     if(d->state & BoardPrivate::READY_TO_DRAW)
     {
-        // QUndoStack* stack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
-        // if(stack)
-        // {
-        //     QPixmap boradCanvas = d->boradCanvas;
-        //     QUndoCommand* undoCommand = TOOLS::createUndoRedoCommand([this, boradCanvas](){
-        //         d->boradCanvas = boradCanvas;
-        //         this->update();
-        //     },nullptr);
-
-        //     stack->push(undoCommand);
-        // }
-
         const Pen* pen = d->controlPlatform->currentPen();
 
         QPainter painter(&d->boradCanvas);
@@ -534,7 +537,7 @@ void Board::drawLine(QPoint lastMousePos, QPoint mousePos)
     }
 }
 
-void Board::drawPen(QPoint mousePos)
+QRectF Board::drawPen(QPointF mousePos)
 {
     d->foregroundCanvas.fill(Qt::transparent);
 
@@ -544,4 +547,6 @@ void Board::drawPen(QPoint mousePos)
 
     QPainter p(&d->foregroundCanvas);
     p.drawPixmap(mousePos, pix);
+
+    return QRectF(mousePos.x(), mousePos.y(), pix.size().width(), pix.size().height());
 }

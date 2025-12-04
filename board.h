@@ -29,7 +29,7 @@ protected:
 protected:
     void drawPoint(QPoint pointPos);
     void drawLine(QPoint lastMousePos, QPoint mousePos);
-    void drawPen(QPoint mousePos);
+    QRectF drawPen(QPointF mousePos);
 
 private:
     friend class BoardPrivate;

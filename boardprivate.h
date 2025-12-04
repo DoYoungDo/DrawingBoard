@@ -62,6 +62,9 @@ public:
 
     std::function<void(void)> lastUndo = nullptr;
     QUndoStack* undoredoStack = nullptr;
+
+    QPointF mousePosition;
+    QRectF penRectF;
 };
 
 #endif // BOARDPRIVATE_H
