@@ -54,6 +54,7 @@ public:
     QPixmap foregroundCanvas;
 
     QPixmap screenPixmap;
+    bool freeze = false;
 
     State state;
     QStack<State> stateStack;

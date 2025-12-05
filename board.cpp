@@ -33,22 +33,15 @@ BoardPrivate::BoardPrivate(Board* _q)
 
 
     controlPlatform->connect(controlPlatform, &Drawer::backgroundOpacityChanged, controlPlatform, [this](int value){
-        if(screenPixmap.isNull())
-        {
-            backgroundCanvas.fill(Qt::transparent);
-            q->update();
-            return;
-        }
+        if(freeze) return;
 
-        backgroundCanvas.fill(Qt::transparent);
-
-        QPainter p(&backgroundCanvas);
-        p.setOpacity((qreal)value / 10.0);
-        p.drawPixmap(backgroundCanvas.rect(), screenPixmap);
-
+        // qDebug() << "value";
+        backgroundCanvas.fill(controlPlatform->backgroundColor());
         q->update();
     });
     controlPlatform->connect(controlPlatform, &Drawer::backgroundColorChanged, controlPlatform, [this](const QColor & c){
+        if(freeze) return;
+
         backgroundCanvas.fill(c);
         q->update();
     });
@@ -180,6 +173,7 @@ BoardPrivate::BoardPrivate(Board* _q)
         q->update();
     });
     controlPlatform->connect(controlPlatform, &Drawer::freeze, controlPlatform, [this](bool f){
+        freeze = f;
         if(!f)
         {
             backgroundCanvas.fill(controlPlatform->backgroundColor());
@@ -225,6 +219,7 @@ BoardPrivate::BoardPrivate(Board* _q)
     boardCanvas.fill(Qt::transparent);
     preBoradCanvas.fill(Qt::transparent);
     foregroundCanvas.fill(Qt::transparent);
+    screenPixmap.fill(Qt::transparent);
 }
 
 BoardPrivate::~BoardPrivate()
@@ -318,7 +313,7 @@ bool BoardPrivate::showOrHideDrawer(QPoint p)
     {
         if(controlPlatform->isVisible() || !(state & State::SHOW_CONTROL) || mouseIsPress)
         {
-            qDebug() << "return" << controlPlatform->isVisible() << !(state & State::SHOW_CONTROL) << mouseIsPress;
+            // qDebug() << "return" << controlPlatform->isVisible() << !(state & State::SHOW_CONTROL) << mouseIsPress;
             return false;
         }
         else
