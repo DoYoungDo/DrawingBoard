@@ -167,11 +167,13 @@ BoardPrivate::BoardPrivate(Board* _q)
 
 
     backgroundCanvas = QPixmap(q->size());
-    boradCanvas = QPixmap(q->size());
+    boardCanvas = QPixmap(q->size());
+    preBoradCanvas = QPixmap(q->size());
     foregroundCanvas = QPixmap(q->size());
 
     backgroundCanvas.fill(controlPlatform->backgroundColor());
-    boradCanvas.fill(Qt::transparent);
+    boardCanvas.fill(Qt::transparent);
+    preBoradCanvas.fill(Qt::transparent);
     foregroundCanvas.fill(Qt::transparent);
 }
 
@@ -196,10 +198,17 @@ void BoardPrivate::drawBackgroundImg(QPainter* p)
     }
 }
 
-void BoardPrivate::drawBoradImg(QPainter* p)
+void BoardPrivate::drawBoardImg(QPainter* p)
 {
     p->save();
-    p->drawPixmap(q->rect(),boradCanvas);
+    p->drawPixmap(q->rect(),boardCanvas);
+    p->restore();
+}
+
+void BoardPrivate::drawPreBoardImg(QPainter *p)
+{
+    p->save();
+    p->drawPixmap(q->rect(),preBoradCanvas);
     p->restore();
 }
 
@@ -211,6 +220,14 @@ void BoardPrivate::drawForeGroundImg(QPainter* p)
         p->drawPixmap(q->rect(),foregroundCanvas);
         p->restore();
     }
+}
+
+void BoardPrivate::pressPreBoard()
+{
+    QPainter p(&boardCanvas);
+    p.drawPixmap(boardCanvas.rect(), preBoradCanvas);
+
+    preBoradCanvas.fill(Qt::transparent);
 }
 
 void BoardPrivate::savaState()
@@ -316,7 +333,7 @@ void Board::readyToDraw()
 
 QPixmap Board::save()
 {
-    return d->boradCanvas;
+    return d->boardCanvas;
 }
 
 bool Board::eventFilter(QObject* watched, QEvent* event)
@@ -339,22 +356,22 @@ bool Board::eventFilter(QObject* watched, QEvent* event)
         }
         else if(event->type() == QEvent::MouseButtonDblClick)
         {
-            // QPainter p(&d->boradCanvas);
+            // QPainter p(&d->boardCanvas);
             // p.setCompositionMode(QPainter::CompositionMode_Clear);
             // p.setPen(Qt::transparent);
             // p.setBrush(Qt::transparent);
-            // p.drawRect(d->boradCanvas.rect());
+            // p.drawRect(d->boardCanvas.rect());
 
             auto redo = [=](){
-                d->boradCanvas.fill(Qt::transparent);
+                d->boardCanvas.fill(Qt::transparent);
                 this->update();
             };
 
             if(d->undoredoStack)
             {
-                QPixmap boradCanvas = d->boradCanvas;
+                QPixmap boradCanvas = d->boardCanvas;
                 QUndoCommand* undoCommand = TOOLS::createUndoRedoCommand([this, boradCanvas](){
-                    d->boradCanvas = boradCanvas;
+                    d->boardCanvas = boradCanvas;
                     this->update();
                 }, redo);
 
@@ -378,7 +395,8 @@ void Board::paintEvent(QPaintEvent* event)
     p.setRenderHint(QPainter::Antialiasing);
 
     d->drawBackgroundImg(&p);
-    d->drawBoradImg(&p);
+    d->drawBoardImg(&p);
+    d->drawPreBoardImg(&p);
     d->drawForeGroundImg(&p);
 
     // qDebug() << "spent" << QDateTime::currentMSecsSinceEpoch() - start;
@@ -387,7 +405,8 @@ void Board::paintEvent(QPaintEvent* event)
 void Board::resizeEvent(QResizeEvent* event)
 {
     d->backgroundCanvas = d->backgroundCanvas.scaled(event->size());
-    d->boradCanvas = d->boradCanvas.scaled(event->size());
+    d->boardCanvas = d->boardCanvas.scaled(event->size());
+    d->preBoradCanvas = d->boardCanvas.scaled(event->size());
     d->foregroundCanvas = d->foregroundCanvas.scaled(event->size());
 
     QWidget::resizeEvent(event);
@@ -436,9 +455,11 @@ void Board::mousePressEvent(QMouseEvent* event)
 {
     if(event->button() == Qt::LeftButton)
     {
-        QPixmap boradCanvas = d->boradCanvas;
+        d->pressPreBoard();
+
+        QPixmap boradCanvas = d->boardCanvas;
         d->lastUndo = [this, boradCanvas](){
-            d->boradCanvas = boradCanvas;
+            d->boardCanvas = boradCanvas;
             this->update();
         };
 
@@ -466,11 +487,13 @@ void Board::mouseReleaseEvent(QMouseEvent* event)
 {
     if(event->button() == Qt::LeftButton)
     {
+        d->pressPreBoard();
+
         if(d->undoredoStack)
         {
-            QPixmap boradCanvas = d->boradCanvas;
+            QPixmap boradCanvas = d->boardCanvas;
             QUndoCommand* undoCommand = TOOLS::createUndoRedoCommand(d->lastUndo, [this, boradCanvas](){
-                d->boradCanvas = boradCanvas;
+                d->boardCanvas = boradCanvas;
                 this->update();
             });
 
@@ -520,12 +543,23 @@ void Board::drawPoint(QPoint pointPos)
     if(d->state & BoardPrivate::READY_TO_DRAW)
     {
         const Pen* pen = d->controlPlatform->currentPen();
-        QPainter p(&d->boradCanvas);
-        p.setRenderHint(QPainter::Antialiasing);
-        p.setOpacity(qreal((qreal)pen->color().alpha() / (qreal)255));
-        p.setPen(*pen);
-        p.setCompositionMode(pen->isEraser() ? QPainter::CompositionMode_Clear : p.compositionMode());
-        p.drawPoint(pointPos);
+        qreal alpha = qreal((qreal)pen->color().alpha() / (qreal)255);
+
+        if(alpha < 1.0 && !pen->isEraser())
+        {
+            QPainter p(&d->preBoradCanvas);
+            p.setRenderHint(QPainter::Antialiasing);
+            p.setPen(*pen);
+            p.setCompositionMode(QPainter::CompositionMode_Source);
+            p.drawPoint(pointPos);
+        }
+        else{
+            QPainter p(&d->boardCanvas);
+            p.setRenderHint(QPainter::Antialiasing);
+            p.setPen(*pen);
+            p.setCompositionMode(pen->isEraser() ? QPainter::CompositionMode_Clear : p.compositionMode());
+            p.drawPoint(pointPos);
+        }
     }
 }
 
@@ -534,14 +568,24 @@ void Board::drawLine(QPoint lastMousePos, QPoint mousePos)
     if(d->state & BoardPrivate::READY_TO_DRAW)
     {
         const Pen* pen = d->controlPlatform->currentPen();
+        qreal alpha = qreal((qreal)pen->color().alpha() / (qreal)255);
 
-        QPainter painter(&d->boradCanvas);
-        painter.setRenderHint(QPainter::Antialiasing);
-        painter.setOpacity(qreal((qreal)pen->color().alpha() / (qreal)255));
-        // 设置画笔属性
-        painter.setPen(*d->controlPlatform->currentPen());
-        painter.setCompositionMode(pen->isEraser() ? QPainter::CompositionMode_Clear : painter.compositionMode());
-        painter.drawLine(lastMousePos, mousePos);
+        if(alpha < 1.0 && !pen->isEraser())
+        {
+            QPainter painter(&d->preBoradCanvas);
+            painter.setRenderHint(QPainter::Antialiasing);
+            painter.setPen(*pen);
+            painter.setCompositionMode(QPainter::CompositionMode_Source);
+            painter.drawLine(lastMousePos, mousePos);
+        }
+        else
+        {
+            QPainter painter(&d->boardCanvas);
+            painter.setRenderHint(QPainter::Antialiasing);
+            painter.setPen(*pen);
+            painter.setCompositionMode(pen->isEraser() ? QPainter::CompositionMode_Clear : painter.compositionMode());
+            painter.drawLine(lastMousePos, mousePos);
+        }
     }
 }
 

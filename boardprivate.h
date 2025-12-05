@@ -32,8 +32,10 @@ private:
 
 public:
     void drawBackgroundImg(QPainter* p);
-    void drawBoradImg(QPainter* p);
+    void drawBoardImg(QPainter* p);
+    void drawPreBoardImg(QPainter* p);
     void drawForeGroundImg(QPainter* p);
+    void pressPreBoard();
 
     void savaState();
     void restoreState();
@@ -46,7 +48,8 @@ public:
     Board* q = nullptr;
 
     QPixmap backgroundCanvas;
-    QPixmap boradCanvas;
+    QPixmap boardCanvas;
+    QPixmap preBoradCanvas;
     QPixmap foregroundCanvas;
 
     State state;
