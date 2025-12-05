@@ -527,30 +527,38 @@ QBoxLayout* Drawer::setupCapabilityButtonUi()
     redoButton->setFixedSize(32,32);
     connect(redoButton, &CapabilityButton::clicked, this, &Drawer::redoClicked);
 
-    QIcon icon;
-    icon.addFile(":/res/icons/arraw_collapse.png",QSize(32,32),QIcon::Normal);
-    icon.addFile(":/res/icons/arraw_expand.png",QSize(32,32),QIcon::Selected);
-    CapabilityButton* btn = new CapabilityButton(icon, this);
-    btn->setIconSize(QSize(32,32));
-    btn->setFixedSize(32,32);
-    btn->setCheckable(true);
-    connect(btn, &CapabilityButton::clicked, this, [this](bool checked){
+    QIcon iconCollapseAndExpand;
+    iconCollapseAndExpand.addFile(":/res/icons/arraw_collapse.png",QSize(32,32),QIcon::Normal);
+    iconCollapseAndExpand.addFile(":/res/icons/arraw_expand.png",QSize(32,32),QIcon::Selected);
+    CapabilityButton* collapseAndExpandButton = new CapabilityButton(iconCollapseAndExpand, this);
+    collapseAndExpandButton->setIconSize(QSize(32,32));
+    collapseAndExpandButton->setFixedSize(32,32);
+    collapseAndExpandButton->setCheckable(true);
+    connect(collapseAndExpandButton, &CapabilityButton::clicked, this, [this](bool checked){
         checked ? collapse() : expand();
     });
+
+    QIcon iconFreeze;
+    iconFreeze.addFile(":/res/icons/freeze.png",QSize(32,32),QIcon::Normal);
+    CapabilityButton* freezeButton = new CapabilityButton(iconFreeze, this);
+    freezeButton->setIconSize(QSize(32,32));
+    freezeButton->setFixedSize(32,32);
+    freezeButton->setCheckable(true);
+    connect(freezeButton, &CapabilityButton::clicked, this, &Drawer::freeze);
 
     QIcon iconDown;
     iconDown.addFile(":/res/icons/down.png",QSize(32,32),QIcon::Normal);
     CapabilityButton* downButton = new CapabilityButton(iconDown, this);
     downButton->setIconSize(QSize(32,32));
     downButton->setFixedSize(32,32);
-    downButton->setCheckable(false);
     connect(downButton, &CapabilityButton::clicked, this, &Drawer::downClicked);
 
     QBoxLayout* layout = createLayout(Qt::Horizontal, 10, QMargins(10, 0, 10, 0));
     // layout->addStretch();
     layout->addWidget(undoButton);
     layout->addWidget(redoButton);
-    layout->addWidget(btn);
+    layout->addWidget(collapseAndExpandButton);
+    layout->addWidget(freezeButton);
     layout->addWidget(downButton);
     layout->addStretch();
 

@@ -13,6 +13,7 @@
         <file>res/icons/redo.png</file>
         <file>res/icons/undo.png</file>
         <file>res/icons/arraw_collapse.png</file>
+        <file>res/icons/freeze.png</file>
     </qresource>
     <qresource prefix="/icon">
         <file>res/pens/pen_default.png</file>

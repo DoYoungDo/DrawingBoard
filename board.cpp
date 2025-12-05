@@ -16,6 +16,7 @@
 #include <QDateTime>
 #include <QUndoStack>
 #include <QPainterPath>
+#include <QWindow>
 
 BoardPrivate::BoardPrivate(Board* _q)
     :q(_q)
@@ -164,6 +165,52 @@ BoardPrivate::BoardPrivate(Board* _q)
         q->drawPen(q->cursor().pos());
         q->update();
     });
+    controlPlatform->connect(controlPlatform, &Drawer::freeze, controlPlatform, [this](bool f){
+        // qDebug() << f;
+        // QList<QWindow*> windows;
+        // for (QWindow* window : DBApplication::allWindows())
+        // {
+        //     // 过滤掉不属于当前进程的窗口（如系统窗口）
+        //     if (window->parent() == nullptr && window->isVisible())
+        //     {
+        //         window->hide();
+        //         windows << window;
+        //     }
+        // }
+        q->hide();
+
+        // 3. 延迟极短时间（让系统完成窗口隐藏，避免截屏残留）
+        // 用 QTimer::singleShot 保证截屏在事件循环中执行，确保隐藏生效
+        QPixmap screenPixmap;
+        QEventLoop loop;
+        QTimer::singleShot(10, [&]() {
+            // 4. 截取主屏幕（若多屏幕，可遍历 QGuiApplication::screens() 获取所有屏幕）
+            QScreen* primaryScreen = QGuiApplication::primaryScreen();
+            if (primaryScreen)
+            {
+                // 截取整个屏幕（包含任务栏等系统元素）
+                screenPixmap = primaryScreen->grabWindow(0);
+            }
+
+            // 5. 恢复应用窗口显示
+            // for (QWindow* window : windows)
+            // {
+            //     window->show();
+            // }
+
+            q->show();
+            controlPlatform->show();
+
+            loop.quit();
+        });
+        loop.exec(); // 等待截屏和窗口恢复完成
+
+        backgroundCanvas.fill(Qt::transparent);
+        QPainter p(&backgroundCanvas);
+        // p.drawPixmap(backgroundCanvas.rect(), screenPixmap);
+
+        // q->update();
+    });
 
 
     backgroundCanvas = QPixmap(q->size());
@@ -262,6 +309,7 @@ bool BoardPrivate::showOrHideDrawer(QPoint p)
     {
         if(controlPlatform->isVisible() || !(state & State::SHOW_CONTROL) || mouseIsPress)
         {
+            qDebug() << "return" << controlPlatform->isVisible() << !(state & State::SHOW_CONTROL) << mouseIsPress;
             return false;
         }
         else

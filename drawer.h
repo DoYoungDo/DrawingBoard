@@ -71,6 +71,7 @@ signals:
     void undoClicked();
     void redoClicked();
     void leave();
+    void freeze(bool);
 
 public slots:
     void collapse();
