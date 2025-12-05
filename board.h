@@ -16,6 +16,7 @@ public:
     void readyToDraw();
 
     QPixmap save();
+    QPixmap save(bool withBackground);
 protected:
     virtual bool eventFilter(QObject* watched, QEvent* event) override;
     virtual void paintEvent(QPaintEvent* event) override;

@@ -22,7 +22,8 @@ const char * DEFAULT_CONFIG = R"({
 "const.dir.setting":"%const.dir.setting%",
 "dir.download":"%dir.download%",
 "language":"\u7b80\u4f53\u4e2d\u6587",
-"key.global.draw":"f4"
+"key.global.draw":"f4",
+"download.with.background":false
 })";
 
 DBApplication* app = static_cast<DBApplication*>(qApp);

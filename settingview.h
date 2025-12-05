@@ -28,6 +28,8 @@ private slots:
 
     void on_pushButton_resetsetting_clicked();
 
+    void on_checkBox_saveBackground_clicked(bool checked);
+
 private:
     Ui::SettingView *ui;
 };

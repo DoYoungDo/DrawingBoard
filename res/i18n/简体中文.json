@@ -14,5 +14,6 @@
     "setting.button.text.change":"切换",
     "setting.button.text.reset":"重置",
     "setting.group.title.text.global.short.cut":"全局局势键",
+    "setting.checkbox.text.download.with.background":"保存背景",
     "tip.text.reset.done":"已经重置，重启后生效，之后的修改将不再生效。"
 }

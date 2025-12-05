@@ -15,11 +15,13 @@ SettingView::SettingView(QWidget *parent)
     Config* config = static_cast<DBApplication*>(qApp)->getSingleton<Config>();
     ConfigHandle* handle = config->getConfigHandle(Config::INTERNAL);
     Q_ASSERT(handle);
+    ui->tabWidget->setCurrentIndex(0);;
     ui->settingPathEdit->setText(handle->getString("const.path.setting"));
     ui->downloadDirEdit->setText(handle->getString("dir.download"));
     ui->keySequenceEdit_Draw->setKeySequence(QKeySequence::fromString(handle->getString("key.global.draw")));
     ui->comboBox_language->setCurrentText(handle->getString("language"));
     ui->label_resettip->setVisible(false);
+    ui->checkBox_saveBackground->setChecked(handle->getBool("download.with.background"));
 
     connect(config, &Config::configChanged, this, [this, handle](Config::ChangedType type, const QString &id){
         Q_UNUSED(type);
@@ -89,5 +91,14 @@ void SettingView::on_pushButton_resetsetting_clicked()
     config->reset();
 
     ui->label_resettip->setVisible(true);
+}
+
+
+void SettingView::on_checkBox_saveBackground_clicked(bool checked)
+{
+    Config* config = static_cast<DBApplication*>(qApp)->getSingleton<Config>();
+    ConfigHandle* handle = config->getConfigHandle(Config::USER);
+    Q_ASSERT(handle);
+    handle->setValue("download.with.background", checked);
 }
 

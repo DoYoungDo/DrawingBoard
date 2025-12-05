@@ -4,6 +4,7 @@
 #include "preview.h"
 #include "tools.h"
 #include "dbapplication.h"
+#include "config.h"
 
 #include <QPainter>
 #include <QPropertyAnimation>
@@ -98,7 +99,9 @@ BoardPrivate::BoardPrivate(Board* _q)
             delete previewPort;
             previewPort = nullptr;
         }
-        QPixmap pic = q->save();
+        ConfigHandle* handle = static_cast<DBApplication*>(qApp)->getSingleton<Config>()->getConfigHandle(Config::INTERNAL);
+        Q_ASSERT(handle);
+        QPixmap pic = q->save(handle->getBool("download.with.background"));
         if(pic.isNull())
         {
             return;
@@ -386,6 +389,18 @@ void Board::readyToDraw()
 QPixmap Board::save()
 {
     return d->boardCanvas;
+}
+
+QPixmap Board::save(bool withBackground)
+{
+    if(!withBackground) return save();
+
+    QPixmap pix(d->boardCanvas.size());
+    QPainter p(&pix);
+    d->drawBackgroundImg(&p);
+    d->drawBoardImg(&p);
+    d->drawPreBoardImg(&p);
+    return pix;
 }
 
 bool Board::eventFilter(QObject* watched, QEvent* event)

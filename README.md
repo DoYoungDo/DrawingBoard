@@ -55,6 +55,6 @@ $ python Script/bundle.py --build-dir build --info Info.plist --icon assets/Draw
 
 - [x] 国际化
 
-- [ ] 保存背景图片，类似于截图
+- [x] 保存背景图片，类似于截图
 
 
