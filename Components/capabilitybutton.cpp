@@ -19,4 +19,10 @@ void CapabilityButton::paintEvent(QPaintEvent* event)
     p.setPen(Qt::transparent);
     p.setBrush(Qt::transparent);
     p.drawPixmap(QRect(this->rect().topLeft(), this->iconSize()), ic.pixmap(this->iconSize(), (this->isCheckable() && this->isChecked()) ? QIcon::Selected : QIcon::Normal));
+
+    if(this->isChecked())
+    {
+        p.setPen(QPen(Qt::gray, 2));
+        p.drawLine(this->rect().bottomLeft(), this->rect().bottomRight());
+    }
 }
