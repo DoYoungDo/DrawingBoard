@@ -21,11 +21,9 @@ public:
         SHOW_BOARD = 1 << 1,
         SHOW_FOREGTOUND = 1 << 2,
 
-        READY_TO_DRAW = SHOW_BACKGROUND | SHOW_BOARD | SHOW_FOREGTOUND,
-
         SHOW_CONTROL= 1 << 3,
 
-        INIT = READY_TO_DRAW | SHOW_CONTROL
+        READY_TO_DRAW = SHOW_BACKGROUND | SHOW_BOARD | SHOW_FOREGTOUND | SHOW_CONTROL,
     };
 private:
     BoardPrivate(Board* _q);

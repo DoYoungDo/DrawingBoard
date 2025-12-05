@@ -22,7 +22,7 @@
 BoardPrivate::BoardPrivate(Board* _q)
     :q(_q)
 {
-    state = State::INIT;
+    state = State::READY_TO_DRAW;
     savaState();
 
     undoredoStack = new QUndoStack(q);
@@ -198,7 +198,7 @@ BoardPrivate::BoardPrivate(Board* _q)
                 screenPixmap = primaryScreen->grabWindow(0);
             }
 
-            setState(INIT);
+            setState(READY_TO_DRAW);
             controlPlatform->show();
 
             loop.quit();
@@ -576,7 +576,8 @@ void Board::mouseReleaseEvent(QMouseEvent* event)
 
         if((d->state & BoardPrivate::READY_TO_DRAW) == BoardPrivate::READY_TO_DRAW)
         {
-            d->setState((BoardPrivate::State)(d->state & ~BoardPrivate::SHOW_BACKGROUND & ~BoardPrivate::SHOW_FOREGTOUND));
+            d->setState((BoardPrivate::State)(d->state & ~BoardPrivate::SHOW_BACKGROUND & ~BoardPrivate::SHOW_FOREGTOUND & ~BoardPrivate::SHOW_CONTROL));
+            d->controlPlatform->hide();
         }
         else
         {
