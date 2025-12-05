@@ -572,9 +572,11 @@ void Board::mouseReleaseEvent(QMouseEvent* event)
     }
     else if(event->button() == Qt::RightButton)
     {
-        if(d->state & BoardPrivate::READY_TO_DRAW)
+        qDebug() << d->state << BoardPrivate::READY_TO_DRAW;
+
+        if((d->state & BoardPrivate::READY_TO_DRAW) == BoardPrivate::READY_TO_DRAW)
         {
-            d->setState((BoardPrivate::State)(d->state & ~BoardPrivate::READY_TO_DRAW));
+            d->setState((BoardPrivate::State)(d->state & ~BoardPrivate::SHOW_BACKGROUND & ~BoardPrivate::SHOW_FOREGTOUND));
         }
         else
         {
