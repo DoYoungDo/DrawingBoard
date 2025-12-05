@@ -331,7 +331,7 @@ QBoxLayout* Drawer::setupSliderUi()
         blockSignals(true);
         backgroundAlphaValueEdit->setValue(value);
         blockSignals(false);
-        emit backgroundOpacityChanged(d->backgroundColor);
+        emit backgroundOpacityChanged(value);
     });
     connect(backgroundAlphaValueEdit, &QSpinBox::valueChanged, backgroundAlphaSlider, &QSlider::setValue);
     QBoxLayout* backgroundAlphaSliderGroupLayout = createLayout(Qt::Vertical,0, QMargins(10,0,10,0));

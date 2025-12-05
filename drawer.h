@@ -60,7 +60,7 @@ protected:
     virtual void leaveEvent(QEvent* event) override;
 
 signals:
-    void backgroundOpacityChanged(const QColor&);
+    void backgroundOpacityChanged(int);
     void backgroundColorChanged(const QColor&);
     void penSizeChanged(int size);
     void penColorChanged(const QColor&);

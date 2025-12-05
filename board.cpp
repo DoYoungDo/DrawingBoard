@@ -31,13 +31,27 @@ BoardPrivate::BoardPrivate(Board* _q)
     // controlPlatform->resize(500,250);
     controlPlatform->installEventFilter(q);
 
-    auto updateBackground = [this](const QColor& c){
-        qDebug() << "backgroud color" << c;
+
+    controlPlatform->connect(controlPlatform, &Drawer::backgroundOpacityChanged, controlPlatform, [this](int value){
+        if(screenPixmap.isNull())
+        {
+            backgroundCanvas.fill(Qt::transparent);
+            q->update();
+            return;
+        }
+
+        backgroundCanvas.fill(Qt::transparent);
+
+        QPainter p(&backgroundCanvas);
+        p.setOpacity((qreal)value / 10.0);
+        p.drawPixmap(backgroundCanvas.rect(), screenPixmap);
+
+        q->update();
+    });
+    controlPlatform->connect(controlPlatform, &Drawer::backgroundColorChanged, controlPlatform, [this](const QColor & c){
         backgroundCanvas.fill(c);
         q->update();
-    };
-    controlPlatform->connect(controlPlatform, &Drawer::backgroundOpacityChanged, controlPlatform, updateBackground);
-    controlPlatform->connect(controlPlatform, &Drawer::backgroundColorChanged, controlPlatform, updateBackground);
+    });
     controlPlatform->connect(controlPlatform, &Drawer::penSizeChanged, controlPlatform, [this](int value){
         foregroundCanvas.fill(Qt::transparent);
 
@@ -166,22 +180,17 @@ BoardPrivate::BoardPrivate(Board* _q)
         q->update();
     });
     controlPlatform->connect(controlPlatform, &Drawer::freeze, controlPlatform, [this](bool f){
-        // qDebug() << f;
-        // QList<QWindow*> windows;
-        // for (QWindow* window : DBApplication::allWindows())
-        // {
-        //     // 过滤掉不属于当前进程的窗口（如系统窗口）
-        //     if (window->parent() == nullptr && window->isVisible())
-        //     {
-        //         window->hide();
-        //         windows << window;
-        //     }
-        // }
-        q->hide();
+        if(!f)
+        {
+            backgroundCanvas.fill(controlPlatform->backgroundColor());
+            screenPixmap.fill(Qt::transparent);
+            q->update();
+            return;
+        }
 
-        // 3. 延迟极短时间（让系统完成窗口隐藏，避免截屏残留）
-        // 用 QTimer::singleShot 保证截屏在事件循环中执行，确保隐藏生效
-        QPixmap screenPixmap;
+        setState(NONE);
+        controlPlatform->hide();
+
         QEventLoop loop;
         QTimer::singleShot(10, [&]() {
             // 4. 截取主屏幕（若多屏幕，可遍历 QGuiApplication::screens() 获取所有屏幕）
@@ -192,13 +201,7 @@ BoardPrivate::BoardPrivate(Board* _q)
                 screenPixmap = primaryScreen->grabWindow(0);
             }
 
-            // 5. 恢复应用窗口显示
-            // for (QWindow* window : windows)
-            // {
-            //     window->show();
-            // }
-
-            q->show();
+            setState(INIT);
             controlPlatform->show();
 
             loop.quit();
@@ -207,9 +210,9 @@ BoardPrivate::BoardPrivate(Board* _q)
 
         backgroundCanvas.fill(Qt::transparent);
         QPainter p(&backgroundCanvas);
-        // p.drawPixmap(backgroundCanvas.rect(), screenPixmap);
+        p.drawPixmap(backgroundCanvas.rect(), screenPixmap/*, backgroundCanvas.rect()*/);
 
-        // q->update();
+        q->update();
     });
 
 
@@ -247,16 +250,22 @@ void BoardPrivate::drawBackgroundImg(QPainter* p)
 
 void BoardPrivate::drawBoardImg(QPainter* p)
 {
-    p->save();
-    p->drawPixmap(q->rect(),boardCanvas);
-    p->restore();
+    if(state & State::SHOW_BOARD)
+    {
+        p->save();
+        p->drawPixmap(q->rect(),boardCanvas);
+        p->restore();
+    }
 }
 
 void BoardPrivate::drawPreBoardImg(QPainter *p)
 {
-    p->save();
-    p->drawPixmap(q->rect(),preBoradCanvas);
-    p->restore();
+    if(state & State::SHOW_BOARD)
+    {
+        p->save();
+        p->drawPixmap(q->rect(),preBoradCanvas);
+        p->restore();
+    }
 }
 
 void BoardPrivate::drawForeGroundImg(QPainter* p)

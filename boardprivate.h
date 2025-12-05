@@ -18,11 +18,12 @@ public:
     enum State{
         NONE = 0,
         SHOW_BACKGROUND = 1 << 0,
-        SHOW_FOREGTOUND = 1 << 1,
+        SHOW_BOARD = 1 << 1,
+        SHOW_FOREGTOUND = 1 << 2,
 
-        READY_TO_DRAW = SHOW_BACKGROUND | SHOW_FOREGTOUND,
+        READY_TO_DRAW = SHOW_BACKGROUND | SHOW_BOARD | SHOW_FOREGTOUND,
 
-        SHOW_CONTROL= 1 << 2,
+        SHOW_CONTROL= 1 << 3,
 
         INIT = READY_TO_DRAW | SHOW_CONTROL
     };
@@ -51,6 +52,8 @@ public:
     QPixmap boardCanvas;
     QPixmap preBoradCanvas;
     QPixmap foregroundCanvas;
+
+    QPixmap screenPixmap;
 
     State state;
     QStack<State> stateStack;
