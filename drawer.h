@@ -68,8 +68,6 @@ signals:
     void collapsed();
     void expanded();
     void downClicked();
-    void undoClicked();
-    void redoClicked();
     void leave();
     void freeze(bool);
 

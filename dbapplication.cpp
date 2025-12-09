@@ -10,6 +10,7 @@ DBApplication::DBApplication(int& argc, char** argv)
     :QApplication(argc, argv)
 {
     registerSingleton(new Config(this));
+    registerSingleton(new QUndoStack(this));
 }
 
 QString DBApplication::applicationDataDir(bool mk)

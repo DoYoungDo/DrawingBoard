@@ -516,19 +516,26 @@ QBoxLayout* Drawer::setupColorButtonUi()
 
 QBoxLayout* Drawer::setupCapabilityButtonUi()
 {
+    QUndoStack* undoStack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
+    Q_ASSERT(undoStack);
+
     QIcon iconUndo;
     iconUndo.addFile(":/res/icons/undo.png",QSize(32,32),QIcon::Normal);
     CapabilityButton* undoButton = new CapabilityButton(iconUndo, this);
     undoButton->setIconSize(QSize(32,32));
     undoButton->setFixedSize(32,32);
-    connect(undoButton, &CapabilityButton::clicked, this, &Drawer::undoClicked);
+    undoButton->setEnabled(undoStack->canUndo());
+    connect(undoButton, &CapabilityButton::clicked, undoStack, &QUndoStack::undo);
+    connect(undoStack, &QUndoStack::canUndoChanged, undoButton, &CapabilityButton::setEnabled);
 
     QIcon iconRedo;
     iconRedo.addFile(":/res/icons/redo.png",QSize(32,32),QIcon::Normal);
     CapabilityButton* redoButton = new CapabilityButton(iconRedo, this);
     redoButton->setIconSize(QSize(32,32));
     redoButton->setFixedSize(32,32);
-    connect(redoButton, &CapabilityButton::clicked, this, &Drawer::redoClicked);
+    redoButton->setEnabled(undoStack->canRedo());
+    connect(redoButton, &CapabilityButton::clicked, undoStack, &QUndoStack::redo);
+    connect(undoStack, &QUndoStack::canRedoChanged, redoButton, &CapabilityButton::setEnabled);
 
     QIcon iconCollapseAndExpand;
     iconCollapseAndExpand.addFile(":/res/icons/arraw_collapse.png",QSize(32,32),QIcon::Normal);

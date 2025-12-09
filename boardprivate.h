@@ -66,7 +66,6 @@ public:
     Preview* previewPort = nullptr;
 
     std::function<void(void)> lastUndo = nullptr;
-    QUndoStack* undoredoStack = nullptr;
 
     QPointF mousePosition;
     QRectF penRectF;

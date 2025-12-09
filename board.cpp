@@ -25,8 +25,6 @@ BoardPrivate::BoardPrivate(Board* _q)
     state = State::READY_TO_DRAW;
     savaState();
 
-    undoredoStack = new QUndoStack(q);
-
     controlPlatform = new Drawer(q);
     controlPlatform->setVisible(false);
     // controlPlatform->resize(500,250);
@@ -67,8 +65,6 @@ BoardPrivate::BoardPrivate(Board* _q)
 
         q->update();
     });
-    controlPlatform->connect(controlPlatform, &Drawer::undoClicked, undoredoStack, &QUndoStack::undo);
-    controlPlatform->connect(controlPlatform, &Drawer::redoClicked, undoredoStack, &QUndoStack::redo);
     controlPlatform->connect(controlPlatform, &Drawer::collapsed, controlPlatform, [this](){
         savedControlPlatformGeometry = controlPlatform->geometry();
 
@@ -375,6 +371,12 @@ Board::Board(QWidget *parent, Qt::WindowFlags f)
 
 Board::~Board()
 {
+    QUndoStack* undoStack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
+    if(undoStack)
+    {
+        undoStack->clear();
+    }
+
     if(d)
     {
         delete d;
@@ -435,16 +437,15 @@ bool Board::eventFilter(QObject* watched, QEvent* event)
                 this->update();
             };
 
-            if(d->undoredoStack)
-            {
-                QPixmap boradCanvas = d->boardCanvas;
-                QUndoCommand* undoCommand = TOOLS::createUndoRedoCommand([this, boradCanvas](){
-                    d->boardCanvas = boradCanvas;
-                    this->update();
-                }, redo);
+            QUndoStack* undoStack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
+            Q_ASSERT(undoStack);
+            QPixmap boradCanvas = d->boardCanvas;
+            QUndoCommand* undoCommand = TOOLS::createUndoRedoCommand([this, boradCanvas](){
+                d->boardCanvas = boradCanvas;
+                this->update();
+            }, redo);
 
-                d->undoredoStack->push(undoCommand);
-            }
+            undoStack->push(undoCommand);
 
             redo();
         }
@@ -542,11 +543,15 @@ void Board::mousePressEvent(QMouseEvent* event)
     }
     else if(event->button() == Qt::BackButton)
     {
-        d->undoredoStack->undo();
+        QUndoStack* undoStack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
+        Q_ASSERT(undoStack);
+        undoStack->undo();
     }
     else if(event->button() == Qt::ForwardButton)
     {
-        d->undoredoStack->redo();
+        QUndoStack* undoStack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
+        Q_ASSERT(undoStack);
+        undoStack->redo();
     }
     QWidget::mousePressEvent(event);
 }
@@ -557,16 +562,15 @@ void Board::mouseReleaseEvent(QMouseEvent* event)
     {
         d->pressPreBoard();
 
-        if(d->undoredoStack)
-        {
-            QPixmap boradCanvas = d->boardCanvas;
-            QUndoCommand* undoCommand = TOOLS::createUndoRedoCommand(d->lastUndo, [this, boradCanvas](){
-                d->boardCanvas = boradCanvas;
-                this->update();
-            });
+        QUndoStack* undoStack = static_cast<DBApplication*>(qApp)->getSingleton<QUndoStack>();
+        Q_ASSERT(undoStack);
+        QPixmap boradCanvas = d->boardCanvas;
+        QUndoCommand* undoCommand = TOOLS::createUndoRedoCommand(d->lastUndo, [this, boradCanvas](){
+            d->boardCanvas = boradCanvas;
+            this->update();
+        });
 
-            d->undoredoStack->push(undoCommand);
-        }
+        undoStack->push(undoCommand);
 
         d->mouseIsPress = false;
         d->showOrHideDrawer(event->pos());
