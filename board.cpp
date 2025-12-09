@@ -663,11 +663,17 @@ QRectF Board::drawPen(QPointF mousePos)
 {
     d->foregroundCanvas.fill(Qt::transparent);
 
-    auto pix = d->controlPlatform->currentPen()->shape();
-
-    mousePos.setY(mousePos.y() - pix.height());
+    const Pen* pen = d->controlPlatform->currentPen();
+    auto pix = pen->shape();
 
     QPainter p(&d->foregroundCanvas);
+    // p.setPen(*p);
+    p.setRenderHint(QPainter::Antialiasing);
+    p.setPen(Qt::transparent);
+    p.setBrush(pen->color());
+    p.drawEllipse(mousePos,pen->width() / 2, pen->width() / 2);
+
+    mousePos.setY(mousePos.y() - pix.height());
     p.drawPixmap(mousePos, pix);
 
     return QRectF(mousePos.x(), mousePos.y(), pix.size().width(), pix.size().height());
