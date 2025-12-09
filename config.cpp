@@ -6,6 +6,7 @@
 #include <QJsonObject>
 #include <QStandardPaths>
 #include <QTimerEvent>
+#include <QDebug>
 
 
 namespace {

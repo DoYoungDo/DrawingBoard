@@ -18,6 +18,8 @@
 #include <QUndoStack>
 #include <QPainterPath>
 #include <QWindow>
+#include <QScreen>
+#include <QDebug>
 
 BoardPrivate::BoardPrivate(Board* _q)
     :q(_q)
@@ -421,7 +423,11 @@ bool Board::eventFilter(QObject* watched, QEvent* event)
                 QTimer::singleShot(2000, this,[this](){
                     d->setState((BoardPrivate::State)(d->state | BoardPrivate::State::SHOW_CONTROL));
                 });
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
                 return qApp->notify(this,new QMouseEvent(QEvent::MouseMove, this->mapFromGlobal(e->globalPosition()), e->globalPosition(),Qt::NoButton,Qt::NoButton, Qt::NoModifier));
+#else
+                return qApp->notify(this,new QMouseEvent(QEvent::MouseMove, this->mapFromGlobal(e->globalPos()), e->globalPos(),Qt::NoButton,Qt::NoButton, Qt::NoModifier));
+#endif
             }
         }
         else if(event->type() == QEvent::MouseButtonDblClick)
@@ -483,11 +489,19 @@ void Board::resizeEvent(QResizeEvent* event)
 
 void Board::mouseMoveEvent(QMouseEvent* event)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
     auto position = event->position();
+#else
+    auto position = event->pos();
+#endif
     if(d->mousePosition == position) return;
     // qDebug() << "last pos" << d->mousePosition << "cur pos" << position;
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
     d->showOrHideDrawer(position.toPoint());
+#else
+    d->showOrHideDrawer(position);
+#endif
 
     QPainterPath path(d->mousePosition);
     path.moveTo(position);
@@ -495,19 +509,31 @@ void Board::mouseMoveEvent(QMouseEvent* event)
 
     if(d->mouseLastPos.isNull())
     {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
         d->mouseLastPos = position.toPoint();
+#else
+        d->mouseLastPos = position;
+#endif
     }
     else
     {
         if(d->mouseIsPress)
         {
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
             drawLine(d->mouseLastPos, position.toPoint());
+#else
+            drawLine(d->mouseLastPos, position);
+#endif
             QPainterPath linePath(d->mouseLastPos);
             linePath.moveTo(position);
             path.addPath(linePath);
         }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
         d->mouseLastPos = position.toPoint();
+#else
+        d->mouseLastPos = position;
+#endif
     }
 
     path.addRect(d->penRectF = drawPen(position));
@@ -536,7 +562,11 @@ void Board::mousePressEvent(QMouseEvent* event)
         if(d->state & BoardPrivate::READY_TO_DRAW)
         {
             d->controlPlatform->hide();
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
             drawPoint(event->position().toPoint());
+#else
+            drawPoint(event->pos());
+#endif
 
             this->update();
         }
@@ -596,6 +626,7 @@ void Board::mouseReleaseEvent(QMouseEvent* event)
     QWidget::mouseReleaseEvent(event);
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
 void Board::enterEvent(QEnterEvent* event)
 {
     // qDebug() << "enter" << event->position();
@@ -607,7 +638,19 @@ void Board::enterEvent(QEnterEvent* event)
     // d->mouseLastPos = event->position().toPoint();
     // d->restoreState();
 }
+#else
+void Board::enterEvent(QEvent* event)
+{
+    // qDebug() << "enter" << event->position();
 
+    d->mousePosition = this->cursor().pos();
+    d->penRectF = drawPen(d->mousePosition);
+
+    this->repaint();
+    // d->mouseLastPos = event->position().toPoint();
+    // d->restoreState();
+}
+#endif
 void Board::leaveEvent(QEvent* event)
 {
     // qDebug() << "leave" << event->position();

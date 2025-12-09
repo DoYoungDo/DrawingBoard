@@ -336,7 +336,11 @@ QBoxLayout* Drawer::setupSliderUi()
         blockSignals(false);
         emit backgroundOpacityChanged(value);
     });
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
     connect(backgroundAlphaValueEdit, &QSpinBox::valueChanged, backgroundAlphaSlider, &QSlider::setValue);
+#else
+    connect(backgroundAlphaValueEdit, QOverload<int>::of(&QSpinBox::valueChanged), backgroundAlphaSlider, &QSlider::setValue);
+#endif
     QBoxLayout* backgroundAlphaSliderGroupLayout = createLayout(Qt::Vertical,0, QMargins(10,0,10,0));
     backgroundAlphaSliderGroupLayout->addWidget(backgroundAlphaSlider, 1);
     backgroundAlphaSliderGroupLayout->addWidget(backgroundAlphaValueEdit, 0);
@@ -364,7 +368,11 @@ QBoxLayout* Drawer::setupSliderUi()
 
         emit penSizeChanged(value);
     });
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
     connect(penSizeEdit, &QSpinBox::valueChanged, penSizeSlider, &QSlider::setValue);
+#else
+    connect(penSizeEdit, QOverload<int>::of(&QSpinBox::valueChanged), penSizeSlider, &QSlider::setValue);
+#endif
     QBoxLayout* penSizeSliderGroupLayout = createLayout(Qt::Vertical,0, QMargins(10,0,10,0));
     penSizeSliderGroupLayout->addWidget(penSizeSlider, 1);
     penSizeSliderGroupLayout->addWidget(penSizeEdit, 0);
@@ -392,7 +400,11 @@ QBoxLayout* Drawer::setupSliderUi()
         penAlphaEdit->setValue(value);
         blockSignals(false);
     });
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
     connect(penAlphaEdit, &QSpinBox::valueChanged, penAlphaSlider, &QSlider::setValue);
+#else
+    connect(penAlphaEdit, QOverload<int>::of(&QSpinBox::valueChanged), penAlphaSlider, &QSlider::setValue);
+#endif
     QBoxLayout* penAlphaSliderGroupLayout = createLayout(Qt::Vertical,0, QMargins(10,0,10,0));
     penAlphaSliderGroupLayout->addWidget(penAlphaSlider, 1);
     penAlphaSliderGroupLayout->addWidget(penAlphaEdit, 0);

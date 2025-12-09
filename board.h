@@ -24,7 +24,11 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent* event) override;
     virtual void mousePressEvent(QMouseEvent* event) override;
     virtual void mouseReleaseEvent(QMouseEvent* event) override;
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
     virtual void enterEvent(QEnterEvent* event) override;
+#else
+    virtual void enterEvent(QEvent* event) override;
+#endif
     virtual void leaveEvent(QEvent* event) override;
 
 protected:

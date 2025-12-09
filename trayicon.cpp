@@ -20,12 +20,23 @@ TrayIcon::TrayIcon(QObject *parent)
     QMenu* menu = new QMenu;
     QAction* drawAction = menu->addAction(tr("menu.action.text.draw"));
     connect(drawAction, &QAction::triggered, this, &TrayIcon::draw);
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
     QAction* preferenceAction = menu->addAction(tr("menu.action.text.preference"), QKeySequence::Preferences);
+#else
+    QAction* preferenceAction = menu->addAction(tr("menu.action.text.preference"));
+    preferenceAction->setShortcut(QKeySequence::Preferences);
+#endif
     connect(preferenceAction, &QAction::triggered, this, &TrayIcon::showPreference);
     menu->addSeparator();
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
     menu->addAction(tr("menu.action.text.quit"), QKeySequence::Quit, [](){
         qApp->quit();
     });
+#else
+    menu->addAction(tr("menu.action.text.quit"), [](){
+        qApp->quit();
+    }, QKeySequence::Quit);
+#endif
 
     this->setContextMenu(menu);
 }
