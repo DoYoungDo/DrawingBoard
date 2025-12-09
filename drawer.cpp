@@ -168,6 +168,9 @@ Drawer::Drawer(QWidget *parent, Qt::WindowFlags f)
         c.setAlpha(handle->getInt("color.pen.opacity"));
         pen->setColor(c);
     });
+
+
+    this->setCursor(Qt::ArrowCursor);
 }
 
 Drawer::~Drawer()

@@ -370,6 +370,7 @@ Board::Board(QWidget *parent, Qt::WindowFlags f)
     this->setAutoFillBackground(false);
 
     this->setMouseTracking(true);
+    this->setCursor(Qt::BlankCursor);
 }
 
 Board::~Board()

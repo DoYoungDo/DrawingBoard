@@ -24,6 +24,9 @@ Preview::Preview(const QPixmap& pix, QWidget* parent)
             + app->applicationName() +  "-" + QDateTime::fromMSecsSinceEpoch(QDateTime::currentMSecsSinceEpoch()).toString("yyyy-MM-dd-hh-mm-ss") + ".png";
 
     setupUi();
+
+
+    this->setCursor(Qt::ArrowCursor);
 }
 
 void Preview::paintEvent(QPaintEvent* event)
