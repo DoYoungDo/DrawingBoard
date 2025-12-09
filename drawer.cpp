@@ -427,9 +427,9 @@ QBoxLayout* Drawer::setupColorButtonUi()
     ConfigHandle* handle = static_cast<DBApplication*>(qApp)->getSingleton<Config>()->getConfigHandle(Config::INTERNAL);
     Q_ASSERT(handle);
 
-    QRadioButton* backgroundRadioBtn = new QRadioButton("background",this);
+    QRadioButton* backgroundRadioBtn = new QRadioButton(tr("radio.button.text.background"),this);
     backgroundRadioBtn->setCheckable(true);
-    QRadioButton* penRadioBtn = new QRadioButton("pen",this);
+    QRadioButton* penRadioBtn = new QRadioButton(tr("radio.button.text.pen"),this);
     penRadioBtn->setCheckable(true);
     penRadioBtn->setChecked(true);
     QButtonGroup* radioButtonGroup = new QButtonGroup(this);
