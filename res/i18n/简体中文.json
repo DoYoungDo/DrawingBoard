@@ -15,6 +15,7 @@
     "setting.button.text.reset":"重置",
     "setting.group.title.text.global.short.cut":"全局局势键",
     "setting.checkbox.text.download.with.background":"保存背景",
+    "setting.checkbox.text.display.pen":"显示画笔",
     "tip.text.reset.done":"已经重置，重启后生效，之后的修改将不再生效。",
     "radio.button.text.background":"背景",
     "radio.button.text.pen":"画笔"

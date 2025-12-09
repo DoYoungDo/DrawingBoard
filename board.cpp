@@ -583,9 +583,11 @@ void Board::mouseReleaseEvent(QMouseEvent* event)
         {
             d->setState((BoardPrivate::State)(d->state & ~BoardPrivate::SHOW_BACKGROUND & ~BoardPrivate::SHOW_FOREGTOUND & ~BoardPrivate::SHOW_CONTROL));
             d->controlPlatform->hide();
+            this->setCursor(Qt::ArrowCursor);
         }
         else
         {
+            this->setCursor(Qt::BlankCursor);
             d->setState((BoardPrivate::State)(d->state | BoardPrivate::READY_TO_DRAW));
             // 激活当前窗口
             this->raise();
@@ -676,10 +678,24 @@ QRectF Board::drawPen(QPointF mousePos)
     p.setRenderHint(QPainter::Antialiasing);
     p.setPen(Qt::transparent);
     p.setBrush(pen->color());
-    p.drawEllipse(mousePos,pen->width() / 2, pen->width() / 2);
+    p.setCompositionMode(QPainter::CompositionMode_Source);
 
-    mousePos.setY(mousePos.y() - pix.height());
-    p.drawPixmap(mousePos, pix);
+    QPainterPath path;
+    path.addEllipse(mousePos,pen->width() / 2, pen->width() / 2);
+    // p.drawEllipse();
 
-    return QRectF(mousePos.x(), mousePos.y(), pix.size().width(), pix.size().height());
+    p.drawPath(path);
+
+    Config* config = static_cast<DBApplication*>(qApp)->getSingleton<Config>();
+    ConfigHandle* handle = config->getConfigHandle(Config::INTERNAL);
+    Q_ASSERT(handle);
+
+    if(handle->getBool("display.pen"))
+    {
+        mousePos.setY(mousePos.y() - pix.height());
+        p.drawPixmap(mousePos, pix);
+    }
+    path.addRect(QRectF(mousePos.x(), mousePos.y(), pix.size().width(), pix.size().height()));
+
+    return path.boundingRect();
 }

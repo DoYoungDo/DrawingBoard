@@ -15,6 +15,7 @@
     "setting.button.text.reset":"Reset",
     "setting.group.title.text.global.short.cut":"Global shortcut",
     "setting.checkbox.text.download.with.background":"Save background",
+    "setting.checkbox.text.display.pen":"Display Pen",
     "tip.text.reset.done":"Reset done, restart to take effect.",
     "radio.button.text.background":"Background",
     "radio.button.text.pen":"Pen"

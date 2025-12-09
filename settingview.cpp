@@ -22,6 +22,7 @@ SettingView::SettingView(QWidget *parent)
     ui->comboBox_language->setCurrentText(handle->getString("language"));
     ui->label_resettip->setVisible(false);
     ui->checkBox_saveBackground->setChecked(handle->getBool("download.with.background"));
+    ui->checkBox_displayPen->setChecked(handle->getBool("display.pen"));
 
     connect(config, &Config::configChanged, this, [this, handle](Config::ChangedType type, const QString &id){
         Q_UNUSED(type);
@@ -100,5 +101,14 @@ void SettingView::on_checkBox_saveBackground_clicked(bool checked)
     ConfigHandle* handle = config->getConfigHandle(Config::USER);
     Q_ASSERT(handle);
     handle->setValue("download.with.background", checked);
+}
+
+
+void SettingView::on_checkBox_displayPen_clicked(bool checked)
+{
+    Config* config = static_cast<DBApplication*>(qApp)->getSingleton<Config>();
+    ConfigHandle* handle = config->getConfigHandle(Config::USER);
+    Q_ASSERT(handle);
+    handle->setValue("display.pen", checked);
 }
 

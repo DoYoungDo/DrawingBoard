@@ -30,6 +30,8 @@ private slots:
 
     void on_checkBox_saveBackground_clicked(bool checked);
 
+    void on_checkBox_displayPen_clicked(bool checked);
+
 private:
     Ui::SettingView *ui;
 };
