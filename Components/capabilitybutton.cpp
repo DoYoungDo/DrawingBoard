@@ -23,8 +23,18 @@ void CapabilityButton::paintEvent(QPaintEvent* event)
 
     if(this->isChecked())
     {
+        p.save();
         p.setPen(QPen(Qt::gray, 2));
         p.drawLine(this->rect().bottomLeft(), this->rect().bottomRight());
+        p.restore();
+    }
+
+    if(!this->isEnabled())
+    {
+        p.save();
+        p.setPen(QPen(Qt::gray, 2));
+        p.drawLine(this->rect().topLeft(), this->rect().bottomRight());
+        p.restore();
     }
 }
 void CapabilityButton::mousePressEvent(QMouseEvent* event)
